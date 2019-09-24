@@ -238,7 +238,7 @@ def make_mesons(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_t
     input_file.write('save_corr_fnal {0}\n'.format(filename))
     input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
     input_file.write('number_of_correlators 1\n')
-    input_file.write('correlator ps p000 1 / {0} {1} 0 0 0 E E E\n'.format(data['lattice info']['w0'],spin_taste))
+    input_file.write('correlator ps p000 1 / {0} {1} 0 0 0 E E E\n'.format(data['lattice info']['wpnorm'],spin_taste))
     return()
     
 
@@ -446,6 +446,13 @@ def main_2pts(argv):
         linebreak('Description of mesons',input_file)
         ################### MESONS ###########################################
         input_file.write('number_of_mesons {0}\n'.format(meson_no))
+        if data['spectator prop']['same'] == True:
+            for i in range(1,meson_no):
+                make_mesons(data,'filename',input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
+        if data['spectator prop']['same'] == False:
+            for i in range(0,meson_no):
+                make_mesons(data,'filename',input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
+        
         linebreak('Description of baryons',input_file)
         ################### BARYONS ##########################################
         input_file.write('number_of_baryons 0\n')
