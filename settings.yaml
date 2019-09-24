@@ -31,7 +31,7 @@ parent prop:
   corr_files:
   - Hs_tw{0}
   - Hs-G5T_tw{0}
-  multimass: False     #Do you want to use a multimass inverter, ie group together in one set
+  multimass: True     #Do you want to use a multimass inverter, ie group together in one set
 
 
 daughter prop:
@@ -43,7 +43,7 @@ daughter prop:
   - 2.7
   - 4.78
   spin_taste:    
-  - G5-G5        #In order paired with parent above if there is more than one
+  - G5-G5        #In order paired with parent above 
   - G5Y-G5T
   - G5X-G5
   error: 1e-8
