@@ -1,0 +1,88 @@
+lattice info:
+  nx: 32
+  ny: 32
+  nz: 32
+  nt: 96
+  u0: 1.0
+  wpnorm: 3
+  ncolor: 3
+  ens: l64192f211b700m00316m0158m188
+  cfg_dir: /rds/project/dirac_vol4/rds-dirac-dp019/confs/l64192f211b700m00316m0158m188
+  max_cg_iterations: 1000
+  max_cg_restarts: 3
+  precision: 2
+  nsrc: 4        # Number or source times 
+  nsrcdivider: 5 #This is the denominator in the source start determination. Usually 5 or 6.	 
+  
+#props (all of them)
+
+parent prop:
+  masses:
+  - 0.2
+  - 0.45
+  - 0.6
+  - 0.8
+  twist: 0
+  spin_taste:
+  - G5-G5
+  - G5T-G5T
+  error: 0
+  rel_error: 6e-14
+  corr_files:
+  - Hs_tw{0}
+  - Hs-G5T_tw{0}
+  multimass: False     #Do you want to use a multimass inverter, ie group together in one set
+
+
+daughter prop:
+  mass: 0.15
+  twists:
+  - 0
+  - 0.734
+  - 1.45
+  - 2.7
+  - 4.78
+  spin_taste:    
+  - G5-G5        #In order paired with parent above if there is more than one
+  - G5Y-G5T
+  - G5X-G5
+  error: 1e-8
+  rel_error: 0
+  save: True      # Will not save props which are loaded 
+  corr_files:
+  - etas_tw{0}
+
+spectator prop:   # Put this in even if it is the same as one of the daughter or parent props
+  same: False    # Is this the same as a daughter
+  load: True
+  check: no
+  mass: 0.10
+  twist: 0           
+  spin_taste:
+  - G5-G5         # We assume this is true and it is hard coded
+  error: 1e-8
+  rel_error: 0
+  save: True
+  load_directory: ./spectator_prop
+
+# Daughter props we want to load (these should already )
+
+daughter load:
+  check: no        # yes or no on checking the loaded file
+  twists:
+  - 0
+  - 1.45
+  spin_taste:
+  - G5-G5             # assume G5-G5 for sources
+  - G5-G5 
+  load_directory:
+  - ./filewithprops
+  - ./filewithprops2
+# Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we 
+
+daughter existing:
+  mass: 0.15
+  twists:                   
+  - 0.734
+  spin_taste:
+  - G5-G5
