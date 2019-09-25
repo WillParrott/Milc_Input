@@ -270,10 +270,9 @@ def remove_duplicates(array):
 
 def sources(data):
     source0 = 'rcw'
-    if 'daughter load' in data:
-        if data['daughter load']['check'] == False:
-            source0 = 'vec_prop'
-    if data['spectator prop']['check'] == False:
+    if 'daughter load' in data and data['daughter load']['check'] == False:
+        source0 = 'vec_prop'
+    if data['spectator prop']['load'] == True and data['spectator prop']['check'] == False:
         source0 = 'vec_prop'
     modified_source = []
     for element in data['parent prop']['spin_taste']:
@@ -387,7 +386,7 @@ def main_2pts(argv):
                     pass
                 elif twist == data['spectator prop']['twist'] and st == 'G5-G5' and data['spectator prop']['mass']==data['daughter prop']['mass']:
                     pass
-                elif twist in data['daughter load']['twists'] and st==data['daughter load']['spin_taste'][data['daughter load']['twists'].index(twist)]:
+                elif 'daughter load' in data and twist in data['daughter load']['twists'] and st==data['daughter load']['spin_taste'][data['daughter load']['twists'].index(twist)]:
                     load = True
                     save = False
                     check = data['daughter load']['check']
