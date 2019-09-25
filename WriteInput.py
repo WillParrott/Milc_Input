@@ -50,9 +50,12 @@ def linebreak(string,input_file):
     input_file.write('\n')
     return()
 
-def make_gauge_field(data,cfg,input_file):
+def make_gauge_field(data,cfg,input_file,i):
     input_file.write('#Description of gauge field\n')
-    input_file.write('reload_serial {0}/{1}.{2}\n'.format(data['lattice info']['cfg_dir'],data['lattice info']['ens'],cfg))
+    if i == 0:
+        input_file.write('reload_serial {0}/{1}.{2}\n'.format(data['lattice info']['cfg_dir'],data['lattice info']['ens'],cfg))
+    else:
+        input_file.write('continue\n')
     input_file.write('u0 {0}\n'.format(data['lattice info']['u0']))
     input_file.write('no_gauge_fix\n')
     input_file.write('forget\n')
@@ -128,6 +131,7 @@ def make_parent_set(Props,input_file,data,set_no,source,spin_taste,num_props):
 def make_parent_prop(Props,input_file,data,mass,prop_no):
     Props['mass'].append(mass)
     Props['twist'].append(data['parent prop']['twist'])
+    Props['type'].append('parent')
     input_file.write('\n')
     input_file.write('#Propagator {0}\n'.format(prop_no))
     input_file.write('mass {0}\n'.format(mass))
@@ -144,8 +148,9 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     Props['mass'].append(data['daughter prop']['mass'])
     Props['st'].append(spin_taste)
     Props['twist'].append(twist)
+    Props['type'].append('daughter')
     if load == True:
-        load_directory = data['spectator prop']['load_directory'][data['daughter load']['twists'].index(twist)]
+        load_directory = data['spectator prop']['load_directory'][data['daughter load']['twists'].index(twist)].format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'])
     input_file.write('\n')
     input_file.write('# ==================\n')
     input_file.write('#Parameters for daughter set {0} {1}\n'.format(set_no,spin_taste))
@@ -187,11 +192,12 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     Props['st'].append('G5-G5')
     Props['mass'].append(data['spectator prop']['mass'])
     Props['twist'].append(data['spectator prop']['twist'])
+    Props['type'].append('daughter')  # daughter because don't use in meson unless duplicated in daughter
     load = data['spectator prop']['load']
     save = data['spectator prop']['save']
     check = data['spectator prop']['check']
     if load == True:
-        load_directory = data['spectator prop']['load_directory']
+        load_directory = data['spectator prop']['load_directory'].format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'])
     spin_taste = 'G5-G5'
     input_file.write('\n')
     input_file.write('# ==================\n')
@@ -230,10 +236,11 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     input_file.write('\n')    
     return()
    
-def make_mesons(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_taste):
+def make_mesons(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_taste):   
     input_file.write('\n')
     input_file.write('# ==================\n')
     input_file.write('#Meson masses {0} {1} twist {2} {3}\n'.format(mass1,mass2,twist,spin_taste))
+    input_file.write('pair {0} {1}\n'.format(prop1,prop2))
     input_file.write('spectrun_request meson\n')
     input_file.write('save_corr_fnal {0}\n'.format(filename))
     input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
@@ -287,17 +294,21 @@ def sources(data):
 
 
 def no_sets_mesons(data):
+    if 'daughter existing' in data:
+        take_off_existing = len(data['daughter existing']['twists'])
+    else:
+        take_off_existing = 0
     if data['parent prop']['multimass'] == True:
         if data['spectator prop']['same'] == True:
-            set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - len(data['daughter existing']['twists']) - 1 
+            set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
         elif data['spectator prop']['same'] == False:
-            set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - len(data['daughter existing']['twists'])
+            set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
     if data['parent prop']['multimass'] == False:
         if data['spectator prop']['same'] == True:
-            set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - len(data['daughter existing']['twists']) - 1
+            set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
         elif data['spectator prop']['same'] == False:
-            set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - len(data['daughter existing']['twists'])
-    meson_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - len(data['daughter existing']['twists'])
+            set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
+    meson_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
     if data['spectator prop']['same'] == True:
         prop_no = meson_no
     elif data['spectator prop']['same'] == False:
@@ -310,16 +321,17 @@ def main_2pts(argv):
     Props['st'] = []
     Props['mass'] = []
     Props['twist'] = []
+    Props['type'] = []
     cfg = int(argv[0])
-    input_file = open('./input-2pt/milc_2pt_804.in', 'w+')
+    input_file = open('./input-2pt/milc_2pt_{0}.in'.format(cfg), 'w+')
     data = load_data()
     t0s = times(data,cfg)
     no_base_sources,source0, modified_sources = sources(data)
     set_no,meson_no,prop_no = no_sets_mesons(data)
     make_preamble(data,input_file,cfg)
-    for t0 in t0s:
+    for i,t0 in enumerate(t0s):
         linebreak('Source time {0}'.format(t0) ,input_file)
-        make_gauge_field(data,cfg,input_file)
+        make_gauge_field(data,cfg,input_file,i)
         linebreak('Description of base sources',input_file)
         ################### BASE SOURCES #####################################
         input_file.write('number_of_base_sources {0}\n'.format(no_base_sources))
@@ -363,9 +375,13 @@ def main_2pts(argv):
         for st in remove_duplicates(data['daughter prop']['spin_taste']):
             for twist in data['daughter prop']['twists']:
                 load = False
-                save = data['daughter prop']['save']
+                if st == 'G5-G5':
+                    save = data['daughter prop']['save']
+                else:
+                    save = False
                 check = True
-                if twist in data['daughter existing']['twists'] and st==data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(twist)]:
+                
+                if 'daughter existing' in data and twist in data['daughter existing']['twists'] and st==data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(twist)]:
                     pass
                 elif twist == data['spectator prop']['twist'] and st == 'G5-G5' and data['spectator prop']['mass']==data['daughter prop']['mass']:
                     pass
@@ -447,11 +463,13 @@ def main_2pts(argv):
         ################### MESONS ###########################################
         input_file.write('number_of_mesons {0}\n'.format(meson_no))
         if data['spectator prop']['same'] == True:
-            for i in range(1,meson_no):
-                make_mesons(data,'filename',input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
-        if data['spectator prop']['same'] == False:
             for i in range(0,meson_no):
-                make_mesons(data,'filename',input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
+                filename = data['{0} prop'.format(Props['type'][i])]['corr_files'][data['{0} prop'.format(Props['type'][i])]['spin_taste'].index(Props['st'][i])].format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,Props['mass'][0],Props['mass'][i])
+                make_mesons(data,filename,input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
+        if data['spectator prop']['same'] == False:
+            for i in range(1,meson_no+1):
+                filename = data['{0} prop'.format(Props['type'][i])]['corr_files'][data['{0} prop'.format(Props['type'][i])]['spin_taste'].index(Props['st'][i])].format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,Props['mass'][0],Props['mass'][i])
+                make_mesons(data,filename,input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
         
         linebreak('Description of baryons',input_file)
         ################### BARYONS ##########################################
