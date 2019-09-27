@@ -28,7 +28,7 @@ def times(data,cfg):
         t0s.append(int(src_start + i*dsrc))
     return(t0s)
 
-def make_preamble(data,input_file,cfg):
+def make_preamble_2pt(data,input_file,cfg):
     input_file.write('prompt 0\n')
     input_file.write('nx {0}\n'.format(data['lattice info']['nx']))
     input_file.write('ny {0}\n'.format(data['lattice info']['ny']))
@@ -38,14 +38,14 @@ def make_preamble(data,input_file,cfg):
     input_file.write('job_id hisq-2pt-{0}\n'.format(cfg))
     return()
 
-def linebreak(string,input_file):
+def linebreak(string,input_file,num):
     input_file.write('\n')
     input_file.write('#')
-    input_file.write('='*40)
+    input_file.write('='*num)
     input_file.write('\n')
     input_file.write('#  {0}\n'.format(string))
     input_file.write('#')
-    input_file.write('='*40)
+    input_file.write('='*num)
     input_file.write('\n')
     input_file.write('\n')
     return()
@@ -182,7 +182,7 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     else:
         input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
     if save == False:
-        input_file.write('forget_ksprop\n')
+        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
     else:
         input_file.write('save_serial_scidac_ksprop props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
     input_file.write('\n')    
@@ -230,7 +230,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     else:
         input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
     if save == False:
-        input_file.write('forget_ksprop\n')
+        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
     else:
         input_file.write('save_serial_scidac_ksprop props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     input_file.write('\n')    
@@ -323,7 +323,7 @@ def main_2pts(argv):
     data = load_data()
     t0s = times(data,cfg)
     no_base_sources,source0, modified_sources = sources(data)
-    make_preamble(data,input_file,cfg)
+    make_preamble_2pt(data,input_file,cfg)
     for i,t0 in enumerate(t0s):
         set_no,meson_no,prop_no = no_sets_mesons(data)
         Props = collections.OrderedDict()
@@ -331,9 +331,9 @@ def main_2pts(argv):
         Props['mass'] = []
         Props['twist'] = []
         Props['type'] = []
-        linebreak('Source time {0}'.format(t0) ,input_file)
+        linebreak('Source time {0}'.format(t0) ,input_file,80)
         make_gauge_field(data,cfg,input_file,i)
-        linebreak('Description of base sources',input_file)
+        linebreak('Description of base sources',input_file,40)
         ################### BASE SOURCES #####################################
         input_file.write('number_of_base_sources {0}\n'.format(no_base_sources))
         if source0 == 'vec_prop':
@@ -344,7 +344,7 @@ def main_2pts(argv):
             make_base_source('rcw',0,input_file,data,t0,cfg)
             make_base_source('vec_field',1,input_file,data,t0,cfg)
         
-        linebreak('Description of modified sources',input_file)
+        linebreak('Description of modified sources',input_file,40)
         ################### MODIFIED SOURCES #################################
         input_file.write('number_of_modified_sources {0}\n'.format(len(modified_sources)))
         if source0 == 'vec_prop':
@@ -358,7 +358,7 @@ def main_2pts(argv):
                 make_modified_source(input_file,modified_sources[i],1,n)
                 n += 1
                 
-        linebreak('Description of propagators',input_file)
+        linebreak('Description of propagators',input_file,40)
         ################### PROPAGATORS ######################################
         pr_num = 0
         set_num = 0
@@ -456,11 +456,11 @@ def main_2pts(argv):
                     pr_num+=1
                 set_num+=1
             
-        linebreak('Description of quarks',input_file)
+        linebreak('Description of quarks',input_file,40)
         ################### QUARKS ###########################################
         input_file.write('number_of_quarks {0}\n'.format(prop_no))
         make_quarks(prop_no,input_file)
-        linebreak('Description of mesons',input_file)
+        linebreak('Description of mesons',input_file,40)
         ################### MESONS ###########################################
         if 'daughter existing' in data and data['spectator prop']['twist'] in data['daughter existing']['twists'] and data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(data['spectator prop']['twist'])] == 'G5-G5':
             start = 1
@@ -477,10 +477,100 @@ def main_2pts(argv):
                 filename = data['{0} prop'.format(Props['type'][i])]['corr_files'][data['{0} prop'.format(Props['type'][i])]['spin_taste'].index(Props['st'][i])].format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,Props['mass'][0],Props['mass'][i])
                 make_mesons(data,filename,input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
         
-        linebreak('Description of baryons',input_file)
+        linebreak('Description of baryons',input_file,40)
         ################### BARYONS ##########################################
         input_file.write('number_of_baryons 0\n')
     input_file.close()
+    return()
+
+
+########################################### EXTSRC #####################################################################
+
+def Times(data,cfg,t0):
+    Ts = []
+    actual_Ts = []
+    for i in range(data['three points']['nT']):
+        actual_Ts.append(t0 + data['three points']['Tstart'] + i * data['three points']['dT'])
+        Ts.append((t0 + data['three points']['Tstart'] + i * data['three points']['dT']) % data['lattice info']['nt'])
+    return(Ts,actual_Ts)
+
+def make_preamble_ext(data,input_file,cfg):
+    input_file.write('prompt 0\n')
+    input_file.write('nx {0}\n'.format(data['lattice info']['nx']))
+    input_file.write('ny {0}\n'.format(data['lattice info']['ny']))
+    input_file.write('nz {0}\n'.format(data['lattice info']['nz']))
+    input_file.write('nt {0}\n'.format(data['lattice info']['nt']))
+    input_file.write('\n')
+    input_file.write('job_id hisq-extsrc-{0}\n'.format(cfg))
+    return()
+
+def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
+    input_file.write('\n')
+    input_file.write('# ==================\n')
+    input_file.write('# Quark {0}\n'.format(qnum))
+    input_file.write('quark_type KS\n')
+    input_file.write('output_type KS\n')
+    if data['spectator prop']['save'] == True:
+        input_file.write('reload_serial_ksprop props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
+    else:
+        input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
+    input_file.write('ncolor {0}\n'.format(data['lattice info']['ncolor']))
+    input_file.write('\n')
+    input_file.write('# Smeraing for quark {0}\n'.format(qnum))
+    input_file.write('identity\n')
+    input_file.write('op_label ext\n')
+    input_file.write('sink_gamma {0}\n'.format(data['parent prop']['spin_taste'][qnum]))
+    input_file.write('\n')
+    input_file.write('r_offset 0 0 0 0\n')
+    input_file.write('number_of_time_slices {0}\n'.format(data['three points']['nT']))
+    for T in Ts:
+        input_file.write('save_serial_scidac_ks_source ./temp/{0}.{1}_t{2}_extsrc_{3}_T{4}_m{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['parent prop']['spin_taste'][qnum],T,data['spectator prop']['mass']))
+        input_file.write('t0 {0}\n'.format(T))
+    return()
+
+def main_extsrc(argv):
+    cfg = int(argv[0])
+    input_file = open('./input-extsrc/milc_ext_{0}.in'.format(cfg), 'w+')
+    data = load_data()
+    t0s = times(data,cfg)
+    make_preamble_ext(data,input_file,cfg)
+    for t0 in t0s:
+        Ts,actual_Ts = Times(data,cfg,t0)
+        linebreak('Source time {0}'.format(t0) ,input_file,80)
+        input_file.write('number_of_quarks {0}\n'.format(len(data['parent prop']['spin_taste'])))
+        for i in range(len(data['parent prop']['spin_taste'])):
+            make_quark_ext(input_file,data,i,cfg,t0,Ts)
+    return()
+
+############################################# 3 pts ###########################################################
+
+
+def make_preamble_3pt(data,input_file,cfg):
+    input_file.write('prompt 0\n')
+    input_file.write('nx {0}\n'.format(data['lattice info']['nx']))
+    input_file.write('ny {0}\n'.format(data['lattice info']['ny']))
+    input_file.write('nz {0}\n'.format(data['lattice info']['nz']))
+    input_file.write('nt {0}\n'.format(data['lattice info']['nt']))
+    input_file.write('iseed {0}\n'.format(cfg))
+    input_file.write('job_id hisq-3pt-{0}\n'.format(cfg))
+    return()
+
+
+
+def main_3pts(argv):
+    cfg = int(argv[0])
+    input_file = open('./input-3pt/milc_3pt_{0}.in'.format(cfg), 'w+')
+    data = load_data()
+    t0s = times(data,cfg)
+    make_preamble_3pt(data,input_file,cfg)
+    i = 0
+    for t0 in t0s:
+        Ts,actual_Ts = Times(data,cfg,t0)
+        for j,T in enumerate(Ts):
+            linebreak('Source time {0}, meson separation T = {1}'.format(t0,actual_Ts[j]-t0) ,input_file,80)
+            make_gauge_field(data,cfg,input_file,i)
+            i += 1 
+            linebreak('Description of base sources',input_file,40)
     return()
 
 
@@ -490,4 +580,7 @@ def main_2pts(argv):
 
 
 
+
 main_2pts(sys.argv[1:])
+main_extsrc(sys.argv[1:])
+main_3pts(sys.argv[1:])

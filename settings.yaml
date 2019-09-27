@@ -1,8 +1,8 @@
 lattice info:
-  nx: 16
-  ny: 16
-  nz: 16
-  nt: 48
+  nx: 32
+  ny: 32
+  nz: 32
+  nt: 96
   u0: 1.0
   wpnorm: 3
   ncolor: 3
@@ -30,7 +30,7 @@ parent prop:
   rel_error: 6e-14
   corr_files:  #Plase to save, elements in list correspond to same elements in spin_taste
   - ./corrs/Hs_tw{0}/{1}meson.{2}.{3}_t{4}_m{5}_m{6}         #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
-  - ./corrs/Hs-G5T_tw{0}/{1}meson-G5T.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  - ./corrs/Hs-G5T_tw{0}/{1}meson-G5T.{2}.{3}_t{4}_m{5}_m{6} #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
   multimass: False                                           #Do you want to use a multimass inverter, ie group together in one set
 
 
@@ -49,20 +49,20 @@ daughter prop:
   rel_error: 0
   save: True      # Will not save props which are loaded. Will only save G5-G5 
   corr_files:
-  - ./corrs/etas_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
-  - ./corrs/etas-G5X_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  - ./corrs/K_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  - ./corrs/K-G5X_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
 
-spectator prop:   # Put this in even if it is the same as one of the daughter or parent props
+spectator prop:   # Put this in even if it is the same as one of the daughter props
   same: False      # Is this the same as a daughter prop?
   load: False
-  check: yes
+  check: yes       
   mass: 0.013
   twist: 0           
   spin_taste:
   - G5-G5         # We assume this is true and it is hard coded
   error: 1e-8
   rel_error: 0
-  save: True
+  save: False
   #load_directory: /home/dc-parr2/rds/rds-dirac-dp019/propagators/uf5/th0.0/rwallprop.{0}.{1}_t{2}_ms{3} #set up so can be followed by .format(ens,cfg,t0,mass)
 
 # Daughter props we want to load (these should appear in daughter prop too )
@@ -93,3 +93,12 @@ spectator prop:   # Put this in even if it is the same as one of the daughter or
 #  - G5-G5
 #  - G5-G5
 #  - G5-G5
+
+
+# Three points
+
+three points:
+  nT: 2
+  dT: 7
+  Tstart: 33
+  
