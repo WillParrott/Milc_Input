@@ -66,7 +66,7 @@ def make_gauge_field(data,cfg,input_file,i):
     input_file.write('number_of_pbp_masses 0\n')
     return()
 
-def make_base_source(source_type,source_number,input_file,data,t0,cfg):
+def make_base_source(source_type,source_number,input_file,data,t0,cfg,filename):
     if source_type == 'vec_prop':
         input_file.write('\n')
         input_file.write('\n')
@@ -86,14 +86,15 @@ def make_base_source(source_type,source_number,input_file,data,t0,cfg):
         input_file.write('ncolor {0}\n'.format(data['lattice info']['ncolor']))
         input_file.write('momentum 0 0 0\n')
         input_file.write('source_label rc\n')
-        input_file.write('save_serial_scidac_ks_source ./temp/{0}.{1}_t{2}_wallsrc\n'.format(data['lattice info']['ens'],cfg,t0))
+        input_file.write('save_serial_scidac_ks_source {0}\n'.format(filename))
     if source_type == 'vec_field':
+        input_file.write('\n')
         input_file.write('\n')
         input_file.write('#Source {0}\n'.format(source_number))
         input_file.write('vector_field\n')
         input_file.write('subset full\n')
         input_file.write('origin 0 0 0 {0}\n'.format(t0))
-        input_file.write('load_source ./temp/{0}.{1}_t{2}_wallsrc\n'.format(data['lattice info']['ens'],cfg,t0))
+        input_file.write('load_source {0}\n'.format(filename))
         input_file.write('ncolor {0}\n'.format(data['lattice info']['ncolor']))
         input_file.write('momentum 0 0 0\n')
         input_file.write('source_label vf\n')
@@ -184,7 +185,7 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     if save == False:
         input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
     else:
-        input_file.write('save_serial_scidac_ksprop props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
+        input_file.write('save_serial_scidac_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
     input_file.write('\n')    
     return()
 
@@ -232,7 +233,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     if save == False:
         input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
     else:
-        input_file.write('save_serial_scidac_ksprop props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
+        input_file.write('save_serial_scidac_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     input_file.write('\n')    
     return()
    
@@ -336,13 +337,14 @@ def main_2pts(argv):
         linebreak('Description of base sources',input_file,40)
         ################### BASE SOURCES #####################################
         input_file.write('number_of_base_sources {0}\n'.format(no_base_sources))
+        fname = './temp/{0}.{1}_t{2}_wallsrc'.format(data['lattice info']['ens'],cfg,t0)
         if source0 == 'vec_prop':
-            make_base_source('vec_prop',0,input_file,data,t0,cfg)
-            make_base_source('rcw',1,input_file,data,t0,cfg)
-            make_base_source('vec_field',2,input_file,data,t0,cfg)
+            make_base_source('vec_prop',0,input_file,data,t0,cfg,fname)
+            make_base_source('rcw',1,input_file,data,t0,cfg,fname)
+            make_base_source('vec_field',2,input_file,data,t0,cfg,fname)
         elif source0 == 'rcw': 
-            make_base_source('rcw',0,input_file,data,t0,cfg)
-            make_base_source('vec_field',1,input_file,data,t0,cfg)
+            make_base_source('rcw',0,input_file,data,t0,cfg,fname)
+            make_base_source('vec_field',1,input_file,data,t0,cfg,fname)
         
         linebreak('Description of modified sources',input_file,40)
         ################### MODIFIED SOURCES #################################
@@ -511,7 +513,7 @@ def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
     input_file.write('quark_type KS\n')
     input_file.write('output_type KS\n')
     if data['spectator prop']['save'] == True:
-        input_file.write('reload_serial_ksprop props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
+        input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     else:
         input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
     input_file.write('ncolor {0}\n'.format(data['lattice info']['ncolor']))
@@ -555,6 +557,74 @@ def make_preamble_3pt(data,input_file,cfg):
     input_file.write('job_id hisq-3pt-{0}\n'.format(cfg))
     return()
 
+def make_daughter_set_prop_3pt(Props,save,input_file,data,twist,set_no,prop_no,source,spin_taste,cfg,t0):
+    Props['mass'].append(data['daughter prop']['mass'])
+    Props['st'].append(spin_taste)
+    Props['twist'].append(twist)
+    Props['type'].append('daughter')
+    input_file.write('\n')
+    input_file.write('# ==================\n')
+    input_file.write('#Parameters for daughter set {0} {1}\n'.format(set_no,spin_taste))
+    input_file.write('max_cg_iterations 2\n')
+    input_file.write('max_cg_restarts 2\n')
+    input_file.write('check no\n')
+    input_file.write('momentum_twist {0} {0} {0}\n'.format(twist))
+    input_file.write('time_bc periodic\n')
+    input_file.write('precison {0}\n'.format(data['lattice info']['precision']))
+    input_file.write('\n')
+    input_file.write('source {0}\n'.format(source))
+    input_file.write('number_of_propagators 1\n')
+    input_file.write('\n')
+    input_file.write('#Propagator {0}\n'.format(prop_no))                 
+    input_file.write('mass {0}\n'.format(data['daughter prop']['mass']))
+    input_file.write('naik_term_epsilon {0}\n'.format(naik(data['daughter prop']['mass'])))
+    input_file.write('error_for_propagator {0}\n'.format(data['daughter prop']['error']))
+    input_file.write('rel_error_for_propagator {0}\n'.format(data['daughter prop']['rel_error']))
+    if save == False:
+        input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
+    else:
+        input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
+    input_file.write('forget_ksprop\n')
+    input_file.write('\n')    
+    return()
+
+def no_sets_mesons_3pts(data):
+    if data['parent prop']['multimass'] == True:
+        set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists'])  
+    if data['parent prop']['multimass'] == False:
+        set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists'])  
+        
+    p_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) 
+    if data['spectator prop']['same'] == True:
+        prop_no = p_no
+    elif data['spectator prop']['same'] == False:
+        prop_no = p_no + 1
+    meson_no =  len(data['three points']['p J d'])*len(data['daughter prop']['twists'])*len(data['parent prop']['masses'])
+    return(set_no,meson_no,prop_no)
+
+
+def make_mesons_3pt(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_taste,label):   
+    input_file.write('\n')
+    input_file.write('# ==================\n')
+    input_file.write('# current-{5} masses {0} {1} {2} twist {3} {4}\n'.format(mass1,mass2,data['spectator prop']['mass'],twist,spin_taste,label))
+    input_file.write('pair {0} {1}\n'.format(prop1,prop2))
+    input_file.write('spectrun_request meson\n')
+    input_file.write('save_corr_fnal {0}\n'.format(filename))
+    input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
+    input_file.write('number_of_correlators 1\n')
+    input_file.write('correlator ps p000 1 / {0} {1} 0 0 0 E E E\n'.format(data['lattice info']['wpnorm'],spin_taste))
+    return()
+
+def get_currents(data):
+    currents = collections.OrderedDict()
+    currents['p'] = []
+    currents['d'] = []
+    currents['J'] = []
+    for i in range(len(data['three points']['p J d'])):
+        currents['p'].append(data['three points']['p J d'][i].split()[0])
+        currents['J'].append(data['three points']['p J d'][i].split()[1])
+        currents['d'].append(data['three points']['p J d'][i].split()[2])       
+    return(currents)
 
 
 def main_3pts(argv):
@@ -564,13 +634,79 @@ def main_3pts(argv):
     t0s = times(data,cfg)
     make_preamble_3pt(data,input_file,cfg)
     i = 0
+    set_no,meson_no,prop_no = no_sets_mesons_3pts(data)
+    currents = get_currents(data)
     for t0 in t0s:
         Ts,actual_Ts = Times(data,cfg,t0)
         for j,T in enumerate(Ts):
+            Props = collections.OrderedDict()
+            Props['st'] = []
+            Props['mass'] = []
+            Props['twist'] = []
+            Props['type'] = []
             linebreak('Source time {0}, meson separation T = {1}'.format(t0,actual_Ts[j]-t0) ,input_file,80)
             make_gauge_field(data,cfg,input_file,i)
             i += 1 
             linebreak('Description of base sources',input_file,40)
+            ###################### BASE SOURCES ################################
+            make_base_source('vec_prop',0,input_file,data,t0,cfg,'no_file_name_needed')
+            for n,st in enumerate(data['parent prop']['spin_taste']):
+                fname = './temp/{0}.{1}_t{2}_extsrc_{3}_T{4}_m{5}'.format(data['lattice info']['ens'],cfg,t0,st,T,data['spectator prop']['mass'])
+                make_base_source('vec_field',n+1,input_file,data,t0,cfg,fname)
+            linebreak('Description of modified sources',input_file,40)
+            ###################### MODIFIED SOURCES ############################
+            input_file.write('number_of_modified_sources 0\n')
+            linebreak('Description of propagators',input_file,40)
+            ###################### PROPAGATORS #################################
+            pr_num = 0
+            set_num = 0
+            input_file.write('number_of_sets {0}\n'.format(set_no))            
+            #~~~~~~~~~~~~~~~~~~ DAUGHTER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            for st in remove_duplicates(data['daughter prop']['spin_taste']):
+                for twist in data['daughter prop']['twists']:
+                    make_daughter_set_prop_3pt(Props,data['daughter prop']['save'],input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                    pr_num += 1 
+                    set_num += 1
+            #~~~~~~~~~~~~~~~~~~~~~ PARENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if data['parent prop']['multimass']== False:
+                for st in remove_duplicates(data['parent prop']['spin_taste']):
+                    for mass in data['parent prop']['masses']:
+                        make_parent_set(Props,input_file,data,set_num,1+data['parent prop']['spin_taste'].index(st),st,1)
+                        make_parent_prop(Props,input_file,data,mass,pr_num)
+                        pr_num+=1
+                        set_num+=1
+            else:
+                for st in remove_duplicates(data['parent prop']['spin_taste']):
+                    make_parent_set(Props,input_file,data,set_num,1+data['parent prop']['spin_taste'].index(st),st,len(data['parent prop']['masses']))
+                    for mass in data['parent prop']['masses']: 
+                        make_parent_prop(Props,input_file,data,mass,pr_num)
+                        pr_num+=1
+                    set_num+=1
+
+            linebreak('Description of quarks',input_file,40)
+            ################### QUARKS ###########################################
+            input_file.write('number_of_quarks {0}\n'.format(prop_no))
+            make_quarks(prop_no,input_file)
+            linebreak('Description of mesons',input_file,40)
+            ################### MESONS ###########################################
+            input_file.write('number_of_mesons {0}\n'.format(meson_no))
+            for k in range(len(data['three points']['p J d'])):
+                for l in range(len(Props['type'])): #l is daughter
+                    for m in range(len(Props['type'])): # m is parent
+                        if Props['type'][l] == 'daughter' and Props['st'][l] == currents['d'][k] and Props['type'][m] == 'parent' and Props['st'][m] == currents['p'][k]:
+                            mass1 = Props['mass'][l]
+                            mass2 = Props['mass'][m]
+                            prop1 = int(l)
+                            prop2 = int(m)
+                            twist = Props['twist'][l]
+                            spin_taste = currents['J'][k]
+                            fname = './corrs/current-{0}_tw{1}/current-{0}.{2}.{3}_t{4}_T{5}_m{6}_m{7}_m{8}_tw{1}'.format(data['three points']['label'][k],twist,data['lattice info']['ens'],cfg,t0,actual_Ts[j]-t0,mass1,mass2,data['spectator prop']['mass'],twist)
+                            make_mesons_3pt(data,fname,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_taste,data['three points']['label'][k])
+                            
+            linebreak('Description of baryons',input_file,40)
+            ################### BARYONS ##########################################
+            input_file.write('number_of_baryons 0\n')
+    input_file.close()            
     return()
 
 

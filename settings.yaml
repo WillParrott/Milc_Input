@@ -11,7 +11,7 @@ lattice info:
   max_cg_iterations: 1000
   max_cg_restarts: 3
   precision: 2
-  nsrc: 4             # Number or source times 
+  nsrc: 4             # Number of source times 
   nsrcdivider: 6       #This is the denominator in the source start determination. Usually 5 or 6.	 
   tag: test-           #Tag go on front of saved versions
 #props (all of them)
@@ -28,7 +28,7 @@ parent prop:
   - G5T-G5T
   error: 0
   rel_error: 6e-14
-  corr_files:  #Plase to save, elements in list correspond to same elements in spin_taste
+  corr_files:  #Place to save, elements in list correspond to same elements in spin_taste
   - ./corrs/Hs_tw{0}/{1}meson.{2}.{3}_t{4}_m{5}_m{6}         #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
   - ./corrs/Hs-G5T_tw{0}/{1}meson-G5T.{2}.{3}_t{4}_m{5}_m{6} #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
   multimass: False                                           #Do you want to use a multimass inverter, ie group together in one set
@@ -77,7 +77,7 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
  # - /home/dc-parr2/rds/rds-dirac-dp019/propagators/uf5/th0.0/rwallprop.{0}.{1}_t{2}_ms{3} #set up so can be followed by .format(ens,cfg,t0,mass)
 
 
-# Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we 
+# Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we have the props for these. If we do not, then we will need to run them for the 3 points so may as well regenerate the 2 points now. 
 
 #daughter existing:
 #  mass: 0.0165
@@ -101,4 +101,11 @@ three points:
   nT: 2
   dT: 7
   Tstart: 33
-  
+  p J d:                       # Parent, current and daughter spin taste combinations
+  - G5-G5 G1-G1 G5-G5
+  - G5T-G5T GT-GT G5-G5
+  - G5-G5 GX-GX G5-G5X
+  label:                        # labels for the file names of the above ie "scalar" will be put in corrs/current-scalar_tw{0}.format(twist)
+  - scalar                    
+  - vector
+  - tensor
