@@ -58,8 +58,6 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
   check: no      
   mass: 0.0376
   twist: 0           
-  spin_taste:
-  - G5-G5         # We assume this is 'G5-G5' and it is hard coded; this is just a reminder
   error: 1e-8
   rel_error: 0
   save: False

@@ -6,7 +6,7 @@ import collections
 
 
 def load_data(): 
-    with open("settings.yaml", 'r') as stream:
+    with open("./in/settings.yaml", 'r') as stream:
         data = yaml.safe_load(stream)
     return(data)
 
@@ -123,7 +123,7 @@ def make_parent_set(Props,input_file,data,set_no,source,spin_taste,num_props):
     input_file.write('check yes\n')
     input_file.write('momentum_twist {0} {0} {0}\n'.format(data['parent prop']['twist']))
     input_file.write('time_bc periodic\n')
-    input_file.write('precison {0}\n'.format(data['lattice info']['precision']))
+    input_file.write('precision {0}\n'.format(data['lattice info']['precision']))
     input_file.write('\n')
     input_file.write('source {0}\n'.format(source))
     input_file.write('number_of_propagators {0}\n'.format(num_props))
@@ -168,7 +168,7 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
             input_file.write('check yes\n')
     input_file.write('momentum_twist {0} {0} {0}\n'.format(twist))
     input_file.write('time_bc periodic\n')
-    input_file.write('precison {0}\n'.format(data['lattice info']['precision']))
+    input_file.write('precision {0}\n'.format(data['lattice info']['precision']))
     input_file.write('\n')
     input_file.write('source {0}\n'.format(source))
     input_file.write('number_of_propagators 1\n')
@@ -183,6 +183,8 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     else:
         input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
     if save == False:
+        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
+    elif spin_taste != 'G5-G5':
         input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
     else:
         input_file.write('save_serial_scidac_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
@@ -216,7 +218,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
             input_file.write('check yes\n')   
     input_file.write('momentum_twist {0} {0} {0}\n'.format(data['spectator prop']['twist']))
     input_file.write('time_bc periodic\n')
-    input_file.write('precison {0}\n'.format(data['lattice info']['precision']))
+    input_file.write('precision {0}\n'.format(data['lattice info']['precision']))
     input_file.write('\n')
     input_file.write('source {0}\n'.format(source))
     input_file.write('number_of_propagators 1\n')
@@ -232,6 +234,8 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
         input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
     if save == False:
         input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
+    elif load == True:
+        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
     else:
         input_file.write('save_serial_scidac_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     input_file.write('\n')    
@@ -242,7 +246,7 @@ def make_mesons(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_t
     input_file.write('# ==================\n')
     input_file.write('#Meson masses {0} {1} twist {2} {3}\n'.format(mass1,mass2,twist,spin_taste))
     input_file.write('pair {0} {1}\n'.format(prop1,prop2))
-    input_file.write('spectrun_request meson\n')
+    input_file.write('spectrum_request meson\n')
     input_file.write('save_corr_fnal {0}\n'.format(filename))
     input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
     input_file.write('number_of_correlators 1\n')
@@ -282,9 +286,6 @@ def sources(data):
     for element in data['daughter prop']['spin_taste']:
         if element != 'G5-G5':
             modified_source.append(element)
-    for element in data['spectator prop']['spin_taste']:
-        if element != 'G5-G5':
-            modified_source.append(element)
     modified_sources = remove_duplicates(modified_source)
     if source0 == 'rcw':
        no_base_sources = 2 
@@ -320,7 +321,7 @@ def no_sets_mesons(data):
 
 def main_2pts(argv):
     cfg = int(argv[0])
-    input_file = open('./input-2pt/milc_2pt_{0}.in'.format(cfg), 'w+')
+    input_file = open('./in/input-2pt/milc_2pt_{0}.in'.format(cfg), 'w+')
     data = load_data()
     t0s = times(data,cfg)
     no_base_sources,source0, modified_sources = sources(data)
@@ -512,7 +513,7 @@ def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
     input_file.write('# Quark {0}\n'.format(qnum))
     input_file.write('quark_type KS\n')
     input_file.write('output_type KS\n')
-    if data['spectator prop']['save'] == True:
+    if data['spectator prop']['save'] == True and data['spectator prop']['load'] == False:
         input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     else:
         input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
@@ -532,7 +533,7 @@ def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
 
 def main_extsrc(argv):
     cfg = int(argv[0])
-    input_file = open('./input-extsrc/milc_ext_{0}.in'.format(cfg), 'w+')
+    input_file = open('./in/input-extsrc/milc_ext_{0}.in'.format(cfg), 'w+')
     data = load_data()
     t0s = times(data,cfg)
     make_preamble_ext(data,input_file,cfg)
@@ -570,7 +571,7 @@ def make_daughter_set_prop_3pt(Props,save,input_file,data,twist,set_no,prop_no,s
     input_file.write('check no\n')
     input_file.write('momentum_twist {0} {0} {0}\n'.format(twist))
     input_file.write('time_bc periodic\n')
-    input_file.write('precison {0}\n'.format(data['lattice info']['precision']))
+    input_file.write('precision {0}\n'.format(data['lattice info']['precision']))
     input_file.write('\n')
     input_file.write('source {0}\n'.format(source))
     input_file.write('number_of_propagators 1\n')
@@ -580,7 +581,9 @@ def make_daughter_set_prop_3pt(Props,save,input_file,data,twist,set_no,prop_no,s
     input_file.write('naik_term_epsilon {0}\n'.format(naik(data['daughter prop']['mass'])))
     input_file.write('error_for_propagator {0}\n'.format(data['daughter prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['daughter prop']['rel_error']))
-    if save == False or spin_taste != 'G5-G5':
+    if save == False:
+        input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
+    elif spin_taste != 'G5-G5':
         input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
     else:
         input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
@@ -608,7 +611,7 @@ def make_mesons_3pt(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,sp
     input_file.write('# ==================\n')
     input_file.write('# current-{5} masses {0} {1} {2} twist {3} {4}\n'.format(mass1,mass2,data['spectator prop']['mass'],twist,spin_taste,label))
     input_file.write('pair {0} {1}\n'.format(prop1,prop2))
-    input_file.write('spectrun_request meson\n')
+    input_file.write('spectrum_request meson\n')
     input_file.write('save_corr_fnal {0}\n'.format(filename))
     input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
     input_file.write('number_of_correlators 1\n')
@@ -629,7 +632,7 @@ def get_currents(data):
 
 def main_3pts(argv):
     cfg = int(argv[0])
-    input_file = open('./input-3pt/milc_3pt_{0}.in'.format(cfg), 'w+')
+    input_file = open('./in/input-3pt/milc_3pt_{0}.in'.format(cfg), 'w+')
     data = load_data()
     t0s = times(data,cfg)
     make_preamble_3pt(data,input_file,cfg)
