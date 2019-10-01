@@ -1,0 +1,115 @@
+lattice info:
+  nx: 32         # x,y,z,t dimensions of lattice 
+  ny: 32
+  nz: 32
+  nt: 96
+  u0: 1.0
+  wpnorm: 3
+  ncolor: 3
+  ens: l3296f211b630m0074m037m440-coul
+  cfg_dir: /rds/project/dirac_vol4/rds-dirac-dp019/confs/coul/l3296f211b630m0074m037m440-coul-v5
+  max_cg_iterations: 1000
+  max_cg_restarts: 3
+  precision: 2
+  nsrc: 16             # Number of source times 
+  nsrcdivider: 5       #This is the denominator in the source start determination. Usually 5 or 6.	 
+  tag: test-           #Tag go on front of saved correlators ie test-meson....
+#props (all of them)
+
+parent prop:
+  masses:
+  - 0.449
+  - 0.566
+  - 0.683
+  - 0.8
+  twist: 0
+  spin_taste:      # any spin tastes we wish to generate
+  - G5-G5
+  - G5T-G5T
+  error: 0
+  rel_error: 6e-14
+  corr_files:          #Place to save 2pt corrs, elements in list correspond to same elements in spin_taste
+  - ./corrs/Hs_tw{0}/{1}meson.{2}.{3}_t{4}_m{5}_m{6}         #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  - ./corrs/Hs-G5T_tw{0}/{1}meson-G5T.{2}.{3}_t{4}_m{5}_m{6} #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  multimass: True                                           #Do you want to use a multimass inverter, ie group together in one set
+
+
+daughter prop:   # All daughter props regardless of if they are loaded or 2pts exist already
+  mass: 0.0376
+  twists:
+  - 0
+  - 0.4281
+  - 1.282
+  - 2.141
+  - 2.570
+  spin_taste:    
+  - G5-G5         # List of all spin tastes
+  - G5-G5X
+  error: 1e-8
+  rel_error: 0
+  save: True      # Will not save props which are loaded. Currently only saves G5-G5. All are saved to temp if not saved and reloaded for 3pts 
+  corr_files:
+  - ./corrs/etas_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  - ./corrs/K-G5X_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
+
+spectator prop:   # Put this in even if it is the same as one of the daughter props
+  same: True      # Is this the same as a daughter prop?
+  load: True     
+  check: no      
+  mass: 0.0376
+  twist: 0           
+  spin_taste:
+  - G5-G5         # We assume this is 'G5-G5' and it is hard coded; this is just a reminder
+  error: 1e-8
+  rel_error: 0
+  save: False
+  load_directory: /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass)
+
+# Daughter props we want to load (these should appear in daughter prop too )
+
+daughter load:
+  check: no        # yes or no on checking the loaded file
+  twists:
+  - 0
+  - 0.4281
+  - 1.282
+  - 2.141
+  #- 2.570
+  spin_taste:
+  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
+  - G5-G5
+  - G5-G5
+  - G5-G5
+  load_directory:
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass,twist)
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+  #- /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+
+# Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we have the props for these. If we do not, then we will need to run them for the 3 points so may as well regenerate the 2 points now. 
+
+daughter existing:
+  mass: 0.0376
+  twists:
+  - 0.4281
+  - 2.570
+  spin_taste:
+  - G5-G5
+  - G5-G5X
+
+
+# Three points
+
+three points:
+  nT: 3          # Number of Ts  
+  dT: 3          # Spacing of Ts
+  Tstart: 14     # First T
+  p J d:                       # Parent, current and daughter spin taste combinations
+  - G5-G5 G1-G1 G5-G5
+  - G5T-G5T GT-GT G5-G5
+  - G5-G5 G5XY-G1 G5-G5X
+  label:                        # labels for the file names of the above ie "scalar" will be put in corrs/current-scalar_tw{0}.format(twist)
+  - scalar                    
+  - vector
+  - other
