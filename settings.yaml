@@ -6,21 +6,21 @@ lattice info:
   u0: 1.0
   wpnorm: 3
   ncolor: 3
-  ens: l1648f211b580m013m065m838
-  cfg_dir: /rds/project/dirac_vol4/rds-dirac-dp019/confs/l1648f211b580m013m065m838/l1648f211b580m013m065m838a
+  ens: l3296f211b630m0074m037m440-coul
+  cfg_dir: /rds/project/dirac_vol4/rds-dirac-dp019/confs/coul/l3296f211b630m0074m037m440-coul-v5
   max_cg_iterations: 1000
   max_cg_restarts: 3
   precision: 2
-  nsrc: 4             # Number of source times 
-  nsrcdivider: 6       #This is the denominator in the source start determination. Usually 5 or 6.	 
+  nsrc: 16             # Number of source times 
+  nsrcdivider: 5       #This is the denominator in the source start determination. Usually 5 or 6.	 
   tag: test-           #Tag go on front of saved versions
 #props (all of them)
 
 parent prop:
   masses:
-  - 0.194
-  - 0.45
-  - 0.6
+  - 0.449
+  - 0.566
+  - 0.683
   - 0.8
   twist: 0
   spin_taste:
@@ -31,81 +31,85 @@ parent prop:
   corr_files:  #Place to save, elements in list correspond to same elements in spin_taste
   - ./corrs/Hs_tw{0}/{1}meson.{2}.{3}_t{4}_m{5}_m{6}         #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
   - ./corrs/Hs-G5T_tw{0}/{1}meson-G5T.{2}.{3}_t{4}_m{5}_m{6} #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
-  multimass: False                                           #Do you want to use a multimass inverter, ie group together in one set
+  multimass: True                                           #Do you want to use a multimass inverter, ie group together in one set
 
 
 daughter prop:
-  mass: 0.065
+  mass: 0.0376
   twists:
   - 0
-  - 0.706
-  - 1.529
-  - 2.235
-  - 4.705
+  - 0.4281
+  - 1.282
+  - 2.141
+  - 2.570
   spin_taste:    
   - G5-G5         # List of all spin tastes
-  - G5-G5X
   error: 1e-8
   rel_error: 0
-  save: True      # Will not save props which are loaded. Will only save G5-G5 
+  save: True      # Will not save props which are loaded. Currently only saves G5-G5
   corr_files:
-  - ./corrs/K_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
-  - ./corrs/K-G5X_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  - ./corrs/etas_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
+  #- ./corrs/K-G5X_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
 
 spectator prop:   # Put this in even if it is the same as one of the daughter props
-  same: False      # Is this the same as a daughter prop?
-  load: False
-  check: yes       
-  mass: 0.013
+  same: True      # Is this the same as a daughter prop?
+  load: True
+  check: no      
+  mass: 0.0376
   twist: 0           
   spin_taste:
   - G5-G5         # We assume this is true and it is hard coded
   error: 1e-8
   rel_error: 0
   save: False
-  #load_directory: /home/dc-parr2/rds/rds-dirac-dp019/propagators/uf5/th0.0/rwallprop.{0}.{1}_t{2}_ms{3} #set up so can be followed by .format(ens,cfg,t0,mass)
+  load_directory: /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass)
 
 # Daughter props we want to load (these should appear in daughter prop too )
 
-#daughter load:
-#  check: no        # yes or no on checking the loaded file
-#  twists:
- # - 0
-#  spin_taste:
- # - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
-#  load_directory:
- # - /home/dc-parr2/rds/rds-dirac-dp019/propagators/uf5/th0.0/rwallprop.{0}.{1}_t{2}_ms{3} #set up so can be followed by .format(ens,cfg,t0,mass)
-
+daughter load:
+  check: no        # yes or no on checking the loaded file
+  twists:
+  - 0
+  - 0.4281
+  - 1.282
+  - 2.141
+  #- 2.570
+  spin_taste:
+  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
+  load_directory:
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass,twist)
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+  #- /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
 
 # Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we have the props for these. If we do not, then we will need to run them for the 3 points so may as well regenerate the 2 points now. 
 
-#daughter existing:
-#  mass: 0.0165
-#  twists:
-#  - 0
-#  - 0.706
-#  - 1.529
-#  - 2.235
-#  - 4.705
-#  spin_taste:
-#  - G5-G5
-#  - G5-G5
-#  - G5-G5
-#  - G5-G5
-#  - G5-G5
+daughter existing:
+  mass: 0.0376
+  twists:
+  - 0
+  - 0.4281
+  - 1.282
+  - 2.141
+  - 2.570
+  spin_taste:
+  - G5-G5
+  - G5-G5
+  - G5-G5
+  - G5-G5
+  - G5-G5
 
 
 # Three points
 
 three points:
-  nT: 2
-  dT: 7
-  Tstart: 33
+  nT: 3
+  dT: 3
+  Tstart: 14
   p J d:                       # Parent, current and daughter spin taste combinations
   - G5-G5 G1-G1 G5-G5
   - G5T-G5T GT-GT G5-G5
-  - G5-G5 GX-GX G5-G5X
   label:                        # labels for the file names of the above ie "scalar" will be put in corrs/current-scalar_tw{0}.format(twist)
   - scalar                    
   - vector
-  - tensor

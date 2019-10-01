@@ -151,7 +151,7 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     Props['twist'].append(twist)
     Props['type'].append('daughter')
     if load == True:
-        load_directory = data['spectator prop']['load_directory'][data['daughter load']['twists'].index(twist)].format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'])
+        load_directory = data['spectator prop']['load_directory'][data['daughter load']['twists'].index(twist)].format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],twist)
     input_file.write('\n')
     input_file.write('# ==================\n')
     input_file.write('#Parameters for daughter set {0} {1}\n'.format(set_no,spin_taste))
@@ -198,7 +198,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     save = data['spectator prop']['save']
     check = data['spectator prop']['check']
     if load == True:
-        load_directory = data['spectator prop']['load_directory'].format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'])
+        load_directory = data['spectator prop']['load_directory'].format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'])
     spin_taste = 'G5-G5'
     input_file.write('\n')
     input_file.write('# ==================\n')
@@ -580,7 +580,7 @@ def make_daughter_set_prop_3pt(Props,save,input_file,data,twist,set_no,prop_no,s
     input_file.write('naik_term_epsilon {0}\n'.format(naik(data['daughter prop']['mass'])))
     input_file.write('error_for_propagator {0}\n'.format(data['daughter prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['daughter prop']['rel_error']))
-    if save == False:
+    if save == False or spin_taste != 'G5-G5':
         input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
     else:
         input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
