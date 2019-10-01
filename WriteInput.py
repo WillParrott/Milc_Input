@@ -700,7 +700,7 @@ def main_3pts(argv):
                             prop2 = int(m)
                             twist = Props['twist'][l]
                             spin_taste = currents['J'][k]
-                            fname = './corrs/current-{0}_tw{1}/current-{0}.{2}.{3}_t{4}_T{5}_m{6}_m{7}_m{8}_tw{1}'.format(data['three points']['label'][k],twist,data['lattice info']['ens'],cfg,t0,actual_Ts[j]-t0,mass1,mass2,data['spectator prop']['mass'],twist)
+                            fname = './corrs/current-{0}_tw{1}/{9}current-{0}.{2}.{3}_t{4}_T{5}_m{6}_m{7}_m{8}_tw{1}'.format(data['three points']['label'][k],twist,data['lattice info']['ens'],cfg,t0,actual_Ts[j]-t0,mass1,mass2,data['spectator prop']['mass'],data['lattice info']['tag'])
                             make_mesons_3pt(data,fname,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_taste,data['three points']['label'][k])
                             
             linebreak('Description of baryons',input_file,40)
