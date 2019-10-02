@@ -10,6 +10,8 @@ def load_data():
         data = yaml.safe_load(stream)
     return(data)
 
+data = load_data()
+
 def naik(mass):
     mc=float(mass)
     mtree= mc * ( 1 - 3.0*mc**4 / 80.0 + 23*mc**6/2240 + 1783*mc**8/537600 - 76943*mc**10/23654400 )
@@ -266,10 +268,11 @@ def make_quarks(num_quarks,input_file):
 
 def remove_duplicates(array):
     new_array = []
-    new_array.append(array[0])
-    for element in array:
-        if element not in new_array:
-            new_array.append(element)
+    if len(array) > 0:
+        new_array.append(array[0])
+        for element in array:
+            if element not in new_array:
+                new_array.append(element)
     return(new_array)
 
 
@@ -280,17 +283,21 @@ def sources(data):
     if data['spectator prop']['load'] == True and data['spectator prop']['check'] == False:
         source0 = 'vec_prop'
     modified_source = []
-    for element in data['parent prop']['spin_taste']:
-        if element != 'G5-G5':
-            modified_source.append(element)
-    for element in data['daughter prop']['spin_taste']:
-        if element != 'G5-G5':
-            modified_source.append(element)
+    if 'parent prop' in data:
+        for element in data['parent prop']['spin_taste']:
+            if element != 'G5-G5':
+                modified_source.append(element)
+    if 'daughter prop' in data:
+        for element in data['daughter prop']['spin_taste']:
+            if element != 'G5-G5':
+                modified_source.append(element)
     modified_sources = remove_duplicates(modified_source)
-    if source0 == 'rcw':
+    if source0 == 'rcw':        
        no_base_sources = 2 
     elif source0 == 'vec_prop':
        no_base_sources = 3
+    if len(modified_sources) == 0:
+        no_base_sources -= 1
     return(no_base_sources,source0,modified_sources)
 
 
@@ -301,17 +308,29 @@ def no_sets_mesons(data):
             take_off_existing = take_off_existing - 1
     else:
         take_off_existing = 0
-    if data['parent prop']['multimass'] == True:
-        if data['spectator prop']['same'] == True:
-            set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
-        elif data['spectator prop']['same'] == False:
-            set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
-    if data['parent prop']['multimass'] == False:
-        if data['spectator prop']['same'] == True:
-            set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
-        elif data['spectator prop']['same'] == False:
-            set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
-    meson_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
+    if 'parent prop' in data:
+        if data['parent prop']['multimass'] == True:
+            if data['spectator prop']['same'] == True:
+                set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
+            else:
+                set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
+        if data['parent prop']['multimass'] == False:
+            if data['spectator prop']['same'] == True:
+                set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
+            else:
+                set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
+
+    else:
+        set_no = len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
+                
+
+    if 'parent prop' in data and 'daughter prop' in data:
+        meson_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
+    elif 'daughter prop' in data:
+        meson_no =  len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
+    elif 'parent prop' in data:
+        meson_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses'])  - take_off_existing
+       
     if data['spectator prop']['same'] == True:
         prop_no = meson_no
     elif data['spectator prop']['same'] == False:
@@ -345,7 +364,8 @@ def main_2pts(argv):
             make_base_source('vec_field',2,input_file,data,t0,cfg,fname)
         elif source0 == 'rcw': 
             make_base_source('rcw',0,input_file,data,t0,cfg,fname)
-            make_base_source('vec_field',1,input_file,data,t0,cfg,fname)
+            if len(modified_sources) > 0:
+                make_base_source('vec_field',1,input_file,data,t0,cfg,fname)
         
         linebreak('Description of modified sources',input_file,40)
         ################### MODIFIED SOURCES #################################
@@ -422,42 +442,43 @@ def main_2pts(argv):
                         pr_num+=1
                         set_num+=1
         #~~~~~~~~~~~~~~~~~~~~~ PARENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if data['parent prop']['multimass']== False:
-            for st in remove_duplicates(data['parent prop']['spin_taste']):
-                for mass in data['parent prop']['masses']:
+        if 'parent prop' in data:
+            if data['parent prop']['multimass']== False:
+                for st in remove_duplicates(data['parent prop']['spin_taste']):
+                    for mass in data['parent prop']['masses']:
+                        if st =='G5-G5':
+                            if source0 == 'vec_prop':
+                                make_parent_set(Props,input_file,data,set_num,1,st,1)
+                            else:
+                                make_parent_set(Props,input_file,data,set_num,0,st,1)
+                        else:
+                            if source0 == 'vec_prop':
+                                sourcenum = 3 + modified_sources.index(st)
+                                make_parent_set(Props,input_file,data,set_num,sourcenum,st,1)
+                            else:
+                                sourcenum = 2 + modified_sources.index(st)
+                                make_parent_set(Props,input_file,data,set_num,sourcenum,st,1)                            
+                        make_parent_prop(Props,input_file,data,mass,pr_num)
+                        pr_num+=1
+                        set_num+=1
+            else:
+                for st in remove_duplicates(data['parent prop']['spin_taste']):
                     if st =='G5-G5':
                         if source0 == 'vec_prop':
-                            make_parent_set(Props,input_file,data,set_num,1,st,1)
+                            make_parent_set(Props,input_file,data,set_num,1,st,len(data['parent prop']['masses']))
                         else:
-                            make_parent_set(Props,input_file,data,set_num,0,st,1)
+                            make_parent_set(Props,input_file,data,set_num,0,st,len(data['parent prop']['masses']))
                     else:
                         if source0 == 'vec_prop':
                             sourcenum = 3 + modified_sources.index(st)
-                            make_parent_set(Props,input_file,data,set_num,sourcenum,st,1)
+                            make_parent_set(Props,input_file,data,set_num,sourcenum,st,len(data['parent prop']['masses']))
                         else:
                             sourcenum = 2 + modified_sources.index(st)
-                            make_parent_set(Props,input_file,data,set_num,sourcenum,st,1)                            
-                    make_parent_prop(Props,input_file,data,mass,pr_num)
-                    pr_num+=1
+                            make_parent_set(Props,input_file,data,set_num,sourcenum,st,len(data['parent prop']['masses'])) 
+                    for mass in data['parent prop']['masses']:
+                        make_parent_prop(Props,input_file,data,mass,pr_num)
+                        pr_num+=1
                     set_num+=1
-        else:
-            for st in remove_duplicates(data['parent prop']['spin_taste']):
-                if st =='G5-G5':
-                    if source0 == 'vec_prop':
-                        make_parent_set(Props,input_file,data,set_num,1,st,len(data['parent prop']['masses']))
-                    else:
-                        make_parent_set(Props,input_file,data,set_num,0,st,len(data['parent prop']['masses']))
-                else:
-                    if source0 == 'vec_prop':
-                        sourcenum = 3 + modified_sources.index(st)
-                        make_parent_set(Props,input_file,data,set_num,sourcenum,st,len(data['parent prop']['masses']))
-                    else:
-                        sourcenum = 2 + modified_sources.index(st)
-                        make_parent_set(Props,input_file,data,set_num,sourcenum,st,len(data['parent prop']['masses'])) 
-                for mass in data['parent prop']['masses']:
-                    make_parent_prop(Props,input_file,data,mass,pr_num)
-                    pr_num+=1
-                set_num+=1
             
         linebreak('Description of quarks',input_file,40)
         ################### QUARKS ###########################################
@@ -721,5 +742,6 @@ def main_3pts(argv):
 
 
 main_2pts(sys.argv[1:])
-main_extsrc(sys.argv[1:])
-main_3pts(sys.argv[1:])
+if data['lattice info']['justtwopoints'] == False:
+    main_extsrc(sys.argv[1:])
+    main_3pts(sys.argv[1:])
