@@ -15,6 +15,7 @@ lattice info:
   nsrcdivider: 5       #This is the denominator in the source start determination. Usually 5 or 6.	 
   tag: test-           #Tag go on front of saved correlators ie test-meson....
   justtwopoint: False  # Just generate two points
+  submit: ./submit/submit_ks_spectrum_hisq.slurm-skylake  # sumit script modified to name input and output using tag
 #props (all of them)
 
 parent prop:

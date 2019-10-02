@@ -14,7 +14,8 @@ lattice info:
   nsrc: 1             # Number of source times 
   nsrcdivider: 6       #This is the denominator in the source start determination. Usually 5 or 6.	 
   tag: eta1heavy2-           #Tag go on front of saved versions
-  justtwopoints: True
+  justtwopoints: True       # Do we want to only generate 2 points?
+  submit: ./submit/submit_ks_spectrum_hisq.slurm-skylake  # sumit script modified to name input and output using tag
 #props (all of them)
 
 parent prop:

@@ -12,6 +12,21 @@ def load_data():
 
 data = load_data()
 
+def edit_submit(data): # edits submit script so the input file read and written includes the tag
+    f = open(data['lattice info']['submit'], 'r')
+    lines = f.readlines()
+    f.close()
+    g = open('./submit/use_this_submit', 'w+')
+    for line in lines:
+        if (line.find('milc_in') != -1 or line.find('milc_out') != -1) and line.find('mpirun') ==-1 :
+            g.write(line[:line.find('/milc')+1] + data['lattice info']['tag'] + line[line.find('/milc')+1:])
+        else:
+            g.write(line)
+    g.close()
+    return()
+
+edit_submit(data)
+
 def naik(mass):
     mc=float(mass)
     mtree= mc * ( 1 - 3.0*mc**4 / 80.0 + 23*mc**6/2240 + 1783*mc**8/537600 - 76943*mc**10/23654400 )
@@ -339,9 +354,9 @@ def no_sets_mesons(data):
 
 
 def main_2pts(argv):
-    cfg = int(argv[0])
-    input_file = open('./in/input-2pt/milc_2pt_{0}.in'.format(cfg), 'w+')
     data = load_data()
+    cfg = int(argv[0])
+    input_file = open('./in/input-2pt/{0}milc_2pt_{1}.in'.format(data['lattice info']['tag'],cfg), 'w+')
     t0s = times(data,cfg)
     no_base_sources,source0, modified_sources = sources(data)
     make_preamble_2pt(data,input_file,cfg)
@@ -553,9 +568,9 @@ def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
     return()
 
 def main_extsrc(argv):
-    cfg = int(argv[0])
-    input_file = open('./in/input-extsrc/milc_ext_{0}.in'.format(cfg), 'w+')
     data = load_data()
+    cfg = int(argv[0])
+    input_file = open('./in/input-extsrc/{0}milc_ext_{1}.in'.format(data['lattice info']['tag'],cfg), 'w+')
     t0s = times(data,cfg)
     make_preamble_ext(data,input_file,cfg)
     for t0 in t0s:
@@ -652,9 +667,9 @@ def get_currents(data):
 
 
 def main_3pts(argv):
-    cfg = int(argv[0])
-    input_file = open('./in/input-3pt/milc_3pt_{0}.in'.format(cfg), 'w+')
     data = load_data()
+    cfg = int(argv[0])
+    input_file = open('./in/input-3pt/{0}milc_3pt_{1}.in'.format(data['lattice info']['tag'],cfg), 'w+')
     t0s = times(data,cfg)
     make_preamble_3pt(data,input_file,cfg)
     i = 0
