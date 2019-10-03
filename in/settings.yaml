@@ -14,14 +14,14 @@ lattice info:
   nsrc: 1             # Number of source times 
   nsrcdivider: 6       #This is the denominator in the source start determination. Usually 5 or 6.	 
   tag: eta1heavy2-           #Tag go on front of saved versions
-  justtwopoints: True       # Do we want to only generate 2 points?
+  justtwopoints: False       # Do we want to only generate 2 points?
   submit: ./submit/submit_ks_spectrum_hisq.slurm-skylake  # sumit script modified to name input and output using tag
 #props (all of them)
 
 parent prop:
   masses:
   - 0.194
-#  - 0.45
+  - 0.45
 #  - 0.6
 #  - 0.8
   twist: 0
@@ -67,14 +67,14 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
 
 # Daughter props we want to load (these should appear in daughter prop too )
 
-#daughter load:
-#  check: no        # yes or no on checking the loaded file
-#  twists:
-#  - 0
-#  spin_taste:
- # - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
- # load_directory:
- # - /home/dc-parr2/rds/rds-dirac-dp019/propagators/uf5/th0.0/rwallprop.{0}.{1}_t{2}_ms{3} #set up so can be followed by .format(ens,cfg,t0,mass,twist)
+daughter load:
+  check: no        # yes or no on checking the loaded file
+  twists:
+  - 0
+  spin_taste:
+  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
+  load_directory:
+  - /home/dc-parr2/rds/rds-dirac-dp019/propagators/uf5/th0.0/rwallprop.{0}.{1}_t{2}_ms{3} #set up so can be followed by .format(ens,cfg,t0,mass,twist)
   
 
 # Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we have the props for these. If we do not, then we will need to run them for the 3 points so may as well regenerate the 2 points now. 

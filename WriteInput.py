@@ -118,11 +118,11 @@ def make_base_source(source_type,source_number,input_file,data,t0,cfg,filename):
         input_file.write('forget_source\n')
     return()
 
-def make_modified_source(input_file,spin_taste,base_source_no,source_number):
+def make_modified_source(input_file,spin_taste,source_number,sources):
     input_file.write('\n')
     input_file.write('\n')
     input_file.write('#Source {0}\n'.format(source_number))
-    input_file.write('source {0}\n'.format(base_source_no))
+    input_file.write('source {0}\n'.format(sources.index('vec_field')))
     input_file.write('spin_taste\n')
     input_file.write('spin_taste {0}\n'.format(spin_taste))
     input_file.write('op_label mod\n')
@@ -290,13 +290,36 @@ def remove_duplicates(array):
                 new_array.append(element)
     return(new_array)
 
+def num_G5sets_gen(data):
+    num_gen = 0
+    if 'parent prop' in data and data['parent prop']['multimass'] == False and 'G5-G5' in data['parent prop']['spin_taste']:
+        num_gen += len(data['parent prop']['masses'])
+    if 'parent prop' in data and data['parent prop']['multimass'] == True and 'G5-G5' in data['parent prop']['spin_taste']:
+        num_gen += 1
+    if 'daughter prop' in data and 'G5-G5' in data['daughter prop']['spin_taste']:
+        num_gen += len(data['daughter prop']['twists'])
+    if 'daughter existing' in data:
+        for ste in data['daughter existing']['spin_taste']:
+            if ste == 'G5-G5':
+                num_gen -= 1
+    if 'daughter load' in data:
+        for stl in data['daughter load']['spin_taste']:
+            if stl == 'G5-G5':
+                num_gen -= 1
+    if 'daughter prop' in data and data['spectator prop']['same'] == False and data['spectator prop']['load'] == False:
+        num_gen += 1
+    if 'daughter prop' not in data and data['spectator prop']['load'] == False:
+        num_gen += 1
+    return(num_gen)
 
-def sources(data):
-    source0 = 'rcw'
+
+def which_sources(data):
+    num_gen = num_G5sets_gen(data)
+    sources = []
     if 'daughter load' in data and data['daughter load']['check'] == False:
-        source0 = 'vec_prop'
-    if data['spectator prop']['load'] == True and data['spectator prop']['check'] == False:
-        source0 = 'vec_prop'
+        sources.append('vec_prop')
+    elif data['spectator prop']['load'] == True and data['spectator prop']['check'] == False:
+        sources.append('vec_prop')    
     modified_source = []
     if 'parent prop' in data:
         for element in data['parent prop']['spin_taste']:
@@ -307,13 +330,14 @@ def sources(data):
             if element != 'G5-G5':
                 modified_source.append(element)
     modified_sources = remove_duplicates(modified_source)
-    if source0 == 'rcw':        
-       no_base_sources = 2 
-    elif source0 == 'vec_prop':
-       no_base_sources = 3
-    if len(modified_sources) == 0:
-        no_base_sources -= 1
-    return(no_base_sources,source0,modified_sources)
+    if num_gen == 1 and len(modified_sources) == 0:
+        sources.append('rcw')
+    elif num_gen == 0 and len(modified_sources) == 0:
+        pass
+    else:
+        sources.append('rcw')
+        sources.append('vec_field')
+    return(sources,modified_sources)
 
 
 def no_sets_mesons(data):
@@ -358,7 +382,7 @@ def main_2pts(argv):
     cfg = int(argv[0])
     input_file = open('./in/input-2pt/{0}milc_2pt_{1}.in'.format(data['lattice info']['tag'],cfg), 'w+')
     t0s = times(data,cfg)
-    no_base_sources,source0, modified_sources = sources(data)
+    sources, modified_sources = which_sources(data)
     make_preamble_2pt(data,input_file,cfg)
     for i,t0 in enumerate(t0s):
         set_no,meson_no,prop_no = no_sets_mesons(data)
@@ -370,44 +394,34 @@ def main_2pts(argv):
         linebreak('Source time {0}'.format(t0) ,input_file,80)
         make_gauge_field(data,cfg,input_file,i)
         linebreak('Description of base sources',input_file,40)
-        ################### BASE SOURCES #####################################
-        input_file.write('number_of_base_sources {0}\n'.format(no_base_sources))
+        ################### BASE SOURCES #####################################            
+        input_file.write('number_of_base_sources {0}\n'.format(len(sources)))
         fname = './temp/{0}.{1}_t{2}_wallsrc'.format(data['lattice info']['ens'],cfg,t0)
-        if source0 == 'vec_prop':
-            make_base_source('vec_prop',0,input_file,data,t0,cfg,fname)
-            make_base_source('rcw',1,input_file,data,t0,cfg,fname)
-            make_base_source('vec_field',2,input_file,data,t0,cfg,fname)
-        elif source0 == 'rcw': 
-            make_base_source('rcw',0,input_file,data,t0,cfg,fname)
-            if len(modified_sources) > 0:
-                make_base_source('vec_field',1,input_file,data,t0,cfg,fname)
-        
+        for base_source_no,source in enumerate(sources):
+            make_base_source(source,base_source_no,input_file,data,t0,cfg,fname)        
         linebreak('Description of modified sources',input_file,40)
         ################### MODIFIED SOURCES #################################
         input_file.write('number_of_modified_sources {0}\n'.format(len(modified_sources)))
-        if source0 == 'vec_prop':
-            n = 3
-            for i in range(len(modified_sources)):
-                make_modified_source(input_file,modified_sources[i],2,n)
-                n += 1
-        elif source0 == 'rcw':
-            n = 2
-            for i in range(len(modified_sources)):
-                make_modified_source(input_file,modified_sources[i],1,n)
-                n += 1
-                
+        for mod_source_no,source in enumerate(modified_sources):
+            make_modified_source(input_file,source,base_source_no+mod_source_no,sources) 
         linebreak('Description of propagators',input_file,40)
         ################### PROPAGATORS ######################################
         pr_num = 0
         set_num = 0
+        gen_prop_no = 0
         input_file.write('number_of_sets {0}\n'.format(set_no))
         #~~~~~~~~~~~~~~~~~~ SPECTATOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
-        if data['spectator prop']['check'] == True and source0 == 'vec_prop':
-            make_spectator_set_prop(Props,input_file,data,set_num,pr_num,1,cfg,t0)
+        if data['spectator prop']['load'] == False:
+            make_spectator_set_prop(Props,input_file,data,set_num,pr_num,sources.index('rcw'),cfg,t0)
+            pr_num+=1
+            set_num+=1
+            gen_prop_no = 1
+        elif data['spectator prop']['check'] == True:
+            make_spectator_set_prop(Props,input_file,data,set_num,pr_num,sources.index('rcw'),cfg,t0)
             pr_num+=1
             set_num+=1
         else:
-            make_spectator_set_prop(Props,input_file,data,set_num,pr_num,0,cfg,t0)
+            make_spectator_set_prop(Props,input_file,data,set_num,pr_num,sources.index('vec_prop'),cfg,t0)
             pr_num+=1
             set_num+=1
         #~~~~~~~~~~~~~~~~~~ DAUGHTER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -422,7 +436,7 @@ def main_2pts(argv):
                 
                 if 'daughter existing' in data and twist in data['daughter existing']['twists'] and st==data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(twist)]:
                     pass
-                elif twist == data['spectator prop']['twist'] and st == 'G5-G5' and data['spectator prop']['mass']==data['daughter prop']['mass']:
+                elif twist == data['spectator prop']['twist'] and st == 'G5-G5' and data['spectator prop']['mass']==data['daughter prop']['mass'] and data['spectator prop']['same'] == True:
                     pass
                 elif 'daughter load' in data and twist in data['daughter load']['twists'] and st==data['daughter load']['spin_taste'][data['daughter load']['twists'].index(twist)]:
                     load = True
@@ -437,59 +451,47 @@ def main_2pts(argv):
                         pr_num+=1
                         set_num+=1
                 elif st =='G5-G5':
-                    if source0 == 'vec_prop':
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,1,st,cfg,t0)
+                    if gen_prop_no == 0:
+                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('rcw'),st,cfg,t0)
                         pr_num+=1
                         set_num+=1
+                        gen_prop_no = 1
                     else:
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('vec_field'),st,cfg,t0)
                         pr_num+=1
                         set_num+=1
                 else:
-                    if source0 == 'vec_prop':
-                        sourcenum = 3 + modified_sources.index(st)
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sourcenum,st,cfg,t0)
-                        pr_num+=1
-                        set_num+=1
-                    else:
-                        sourcenum = 2 + modified_sources.index(st)
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sourcenum,st,cfg,t0)
-                        pr_num+=1
-                        set_num+=1
+                    make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,len(sources)+modified_sources.index(st),st,cfg,t0)
+                    pr_num+=1
+                    set_num+=1
+                    
         #~~~~~~~~~~~~~~~~~~~~~ PARENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if 'parent prop' in data:
             if data['parent prop']['multimass']== False:
                 for st in remove_duplicates(data['parent prop']['spin_taste']):
                     for mass in data['parent prop']['masses']:
                         if st =='G5-G5':
-                            if source0 == 'vec_prop':
-                                make_parent_set(Props,input_file,data,set_num,1,st,1)
+                            if gen_prop_no == 0:
+                                make_parent_set(Props,input_file,data,set_num,sources.index('rcw'),st,1)
+                                gen_prop_no = 1
                             else:
-                                make_parent_set(Props,input_file,data,set_num,0,st,1)
+                                make_parent_set(Props,input_file,data,set_num,sources.index('vec_field'),st,1)
                         else:
-                            if source0 == 'vec_prop':
-                                sourcenum = 3 + modified_sources.index(st)
-                                make_parent_set(Props,input_file,data,set_num,sourcenum,st,1)
-                            else:
-                                sourcenum = 2 + modified_sources.index(st)
-                                make_parent_set(Props,input_file,data,set_num,sourcenum,st,1)                            
+                            make_parent_set(Props,input_file,data,set_num,len(sources) + modified_sources.index(st),st,1)                   
                         make_parent_prop(Props,input_file,data,mass,pr_num)
                         pr_num+=1
                         set_num+=1
             else:
                 for st in remove_duplicates(data['parent prop']['spin_taste']):
                     if st =='G5-G5':
-                        if source0 == 'vec_prop':
-                            make_parent_set(Props,input_file,data,set_num,1,st,len(data['parent prop']['masses']))
+                        if gen_prop_no == 0:
+                            make_parent_set(Props,input_file,data,set_num,sources.index('rcw'),st,len(data['parent prop']['masses']))
+                            gen_prop_no = 1
                         else:
-                            make_parent_set(Props,input_file,data,set_num,0,st,len(data['parent prop']['masses']))
+                            make_parent_set(Props,input_file,data,set_num,sources.index('vec_field'),st,len(data['parent prop']['masses']))
                     else:
-                        if source0 == 'vec_prop':
-                            sourcenum = 3 + modified_sources.index(st)
-                            make_parent_set(Props,input_file,data,set_num,sourcenum,st,len(data['parent prop']['masses']))
-                        else:
-                            sourcenum = 2 + modified_sources.index(st)
-                            make_parent_set(Props,input_file,data,set_num,sourcenum,st,len(data['parent prop']['masses'])) 
+                        make_parent_set(Props,input_file,data,set_num,len(sources) + modified_sources.index(st),st,len(data['parent prop']['masses']))
+                       
                     for mass in data['parent prop']['masses']:
                         make_parent_prop(Props,input_file,data,mass,pr_num)
                         pr_num+=1
