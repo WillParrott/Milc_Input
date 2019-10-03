@@ -4,6 +4,7 @@ import sys
 from math import sqrt, cosh, sinh
 import collections
 
+reload_check_iters = 1000
 
 def load_data(): 
     with open("./in/settings.yaml", 'r') as stream:
@@ -177,8 +178,8 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
         input_file.write('max_cg_restarts {0}\n'.format(data['lattice info']['max_cg_restarts']))
         input_file.write('check yes\n')
     else:
-        input_file.write('max_cg_iterations 2\n')
-        input_file.write('max_cg_restarts 2\n')
+        input_file.write('max_cg_iterations {0}\n'.format(reload_check_iters))
+        input_file.write('max_cg_restarts 3\n')
         if check == False:
             input_file.write('check no\n')
         if check == True:
@@ -227,7 +228,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
         input_file.write('max_cg_restarts {0}\n'.format(data['lattice info']['max_cg_restarts']))
         input_file.write('check yes\n')
     else:
-        input_file.write('max_cg_iterations 2\n')
+        input_file.write('max_cg_iterations {0}\n'.format(reload_check_iters))
         input_file.write('max_cg_restarts 2\n')
         if check == False:
             input_file.write('check no\n')
