@@ -201,9 +201,9 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     else:
         input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
     if save == False:
-        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
+        input_file.write('save_serial_scidac_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
     elif spin_taste != 'G5-G5':
-        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
+        input_file.write('save_serial_scidac_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
     else:
         input_file.write('save_serial_scidac_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
     input_file.write('\n')    
@@ -251,9 +251,9 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     else:
         input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
     if save == False:
-        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
+        input_file.write('save_serial_scidac_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5',data['lattice info']['tag']) )
     elif load == True:
-        input_file.write('save_serial_scidac_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
+        input_file.write('save_serial_scidac_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5',data['lattice info']['tag']) )
     else:
         input_file.write('save_serial_scidac_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     input_file.write('\n')    
@@ -409,7 +409,7 @@ def main_2pts(argv):
         linebreak('Description of base sources',input_file,40)
         ################### BASE SOURCES #####################################            
         input_file.write('number_of_base_sources {0}\n'.format(len(sources)))
-        fname = './temp/{0}.{1}_t{2}_wallsrc'.format(data['lattice info']['ens'],cfg,t0)
+        fname = './temp/{3}{0}.{1}_t{2}_wallsrc'.format(data['lattice info']['ens'],cfg,t0,data['lattice info']['tag'])
         for base_source_no,source in enumerate(sources):
             make_base_source(source,base_source_no,input_file,data,t0,cfg,fname)        
         linebreak('Description of modified sources',input_file,40)
@@ -456,12 +456,12 @@ def main_2pts(argv):
                         load = True
                         save = False
                         check = data['daughter load']['check']
-                        if data['daughter load']['check'] == True and source0 == 'vec_prop':
-                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,1,st,cfg,t0)
+                        if data['daughter load']['check'] == True:
+                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('rcw'),st,cfg,t0)
                             pr_num+=1
                             set_num+=1
                         else:
-                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('vec_prop'),st,cfg,t0)
                             pr_num+=1
                             set_num+=1
                     elif st =='G5-G5':
@@ -568,7 +568,7 @@ def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
     if data['spectator prop']['save'] == True and data['spectator prop']['load'] == False:
         input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     else:
-        input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5') )
+        input_file.write('reload_serial_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5',data['lattice info']['tag']) )
     input_file.write('ncolor {0}\n'.format(data['lattice info']['ncolor']))
     input_file.write('\n')
     input_file.write('# Smeraing for quark {0}\n'.format(qnum))
@@ -579,7 +579,7 @@ def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
     input_file.write('r_offset 0 0 0 0\n')
     input_file.write('number_of_time_slices {0}\n'.format(data['three points']['nT']))
     for T in Ts:
-        input_file.write('save_serial_scidac_ks_source ./temp/{0}.{1}_t{2}_extsrc_{3}_T{4}_m{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['parent prop']['spin_taste'][qnum],T,data['spectator prop']['mass']))
+        input_file.write('save_serial_scidac_ks_source ./temp/{6}{0}.{1}_t{2}_extsrc_{3}_T{4}_m{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['parent prop']['spin_taste'][qnum],T,data['spectator prop']['mass'],data['lattice info']['tag']))
         input_file.write('t0 {0}\n'.format(T))
     return()
 
@@ -634,9 +634,9 @@ def make_daughter_set_prop_3pt(Props,save,input_file,data,twist,set_no,prop_no,s
     input_file.write('error_for_propagator {0}\n'.format(data['daughter prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['daughter prop']['rel_error']))
     if save == False:
-        input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
+        input_file.write('reload_serial_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
     elif spin_taste != 'G5-G5':
-        input_file.write('reload_serial_ksprop ./temp/{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste) )
+        input_file.write('reload_serial_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
     else:
         input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
     input_file.write('forget_ksprop\n')
@@ -706,7 +706,7 @@ def main_3pts(argv):
             ###################### BASE SOURCES ################################
             make_base_source('vec_prop',0,input_file,data,t0,cfg,'no_file_name_needed')
             for n,st in enumerate(data['parent prop']['spin_taste']):
-                fname = './temp/{0}.{1}_t{2}_extsrc_{3}_T{4}_m{5}'.format(data['lattice info']['ens'],cfg,t0,st,T,data['spectator prop']['mass'])
+                fname = './temp/{6}{0}.{1}_t{2}_extsrc_{3}_T{4}_m{5}'.format(data['lattice info']['ens'],cfg,t0,st,T,data['spectator prop']['mass'],data['lattice info']['tag'])
                 make_base_source('vec_field',n+1,input_file,data,t0,cfg,fname)
             linebreak('Description of modified sources',input_file,40)
             ###################### MODIFIED SOURCES ############################
