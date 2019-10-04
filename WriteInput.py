@@ -229,7 +229,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
         input_file.write('check yes\n')
     else:
         input_file.write('max_cg_iterations {0}\n'.format(reload_check_iters))
-        input_file.write('max_cg_restarts 2\n')
+        input_file.write('max_cg_restarts 3\n')
         if check == False:
             input_file.write('check no\n')
         if check == True:
@@ -344,22 +344,34 @@ def which_sources(data):
 def no_sets_mesons(data):
     if 'daughter existing' in data:
         take_off_existing = len(data['daughter existing']['twists'])
-        if data['spectator prop']['twist'] in data['daughter existing']['twists'] and data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(data['spectator prop']['twist'])] == 'G5-G5':
+        if data['spectator prop']['twist'] in data['daughter existing']['twists'] and data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(data['spectator prop']['twist'])] == 'G5-G5' and data['spectator prop']['same'] == True:
             take_off_existing = take_off_existing - 1
     else:
         take_off_existing = 0
     if 'parent prop' in data:
         if data['parent prop']['multimass'] == True:
             if data['spectator prop']['same'] == True:
-                set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
+                if 'daughter prop' in data: 
+                    set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
+                else:
+                    set_no = len(data['parent prop']['spin_taste']) + 1
             else:
-                set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
+                if 'daughter prop' in data:
+                    set_no = len(data['parent prop']['spin_taste']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
+                else:
+                    set_no = len(data['parent prop']['spin_taste']) + 1
         if data['parent prop']['multimass'] == False:
             if data['spectator prop']['same'] == True:
-                set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing 
+                if 'daughter prop' in data: 
+                    set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
+                else:
+                    set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses'])  
             else:
-                set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
-
+                if 'daughter prop' in data: 
+                    set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing + 1
+                else:
+                    set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + 1
+                    
     else:
         set_no = len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) - take_off_existing
                 
@@ -404,7 +416,7 @@ def main_2pts(argv):
         ################### MODIFIED SOURCES #################################
         input_file.write('number_of_modified_sources {0}\n'.format(len(modified_sources)))
         for mod_source_no,source in enumerate(modified_sources):
-            make_modified_source(input_file,source,base_source_no+mod_source_no,sources) 
+            make_modified_source(input_file,source,len(sources)+mod_source_no,sources) 
         linebreak('Description of propagators',input_file,40)
         ################### PROPAGATORS ######################################
         pr_num = 0
@@ -426,45 +438,46 @@ def main_2pts(argv):
             pr_num+=1
             set_num+=1
         #~~~~~~~~~~~~~~~~~~ DAUGHTER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        for st in remove_duplicates(data['daughter prop']['spin_taste']):
-            for twist in data['daughter prop']['twists']:
-                load = False
-                if st == 'G5-G5':
-                    save = data['daughter prop']['save']
-                else:
-                    save = False
-                check = True
+        if 'daughter prop' in data:
+            for st in remove_duplicates(data['daughter prop']['spin_taste']):
+                for twist in data['daughter prop']['twists']:
+                    load = False
+                    if st == 'G5-G5':
+                        save = data['daughter prop']['save']
+                    else:
+                        save = False
+                    check = True
                 
-                if 'daughter existing' in data and twist in data['daughter existing']['twists'] and st==data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(twist)]:
-                    pass
-                elif twist == data['spectator prop']['twist'] and st == 'G5-G5' and data['spectator prop']['mass']==data['daughter prop']['mass'] and data['spectator prop']['same'] == True:
-                    pass
-                elif 'daughter load' in data and twist in data['daughter load']['twists'] and st==data['daughter load']['spin_taste'][data['daughter load']['twists'].index(twist)]:
-                    load = True
-                    save = False
-                    check = data['daughter load']['check']
-                    if data['daughter load']['check'] == True and source0 == 'vec_prop':
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,1,st,cfg,t0)
-                        pr_num+=1
-                        set_num+=1
+                    if 'daughter existing' in data and twist in data['daughter existing']['twists'] and st==data['daughter existing']['spin_taste'][data['daughter existing']['twists'].index(twist)]:
+                        pass
+                    elif twist == data['spectator prop']['twist'] and st == 'G5-G5' and data['spectator prop']['mass']==data['daughter prop']['mass'] and data['spectator prop']['same'] == True:
+                        pass
+                    elif 'daughter load' in data and twist in data['daughter load']['twists'] and st==data['daughter load']['spin_taste'][data['daughter load']['twists'].index(twist)]:
+                        load = True
+                        save = False
+                        check = data['daughter load']['check']
+                        if data['daughter load']['check'] == True and source0 == 'vec_prop':
+                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,1,st,cfg,t0)
+                            pr_num+=1
+                            set_num+=1
+                        else:
+                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                            pr_num+=1
+                            set_num+=1
+                    elif st =='G5-G5':
+                        if gen_prop_no == 0:
+                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('rcw'),st,cfg,t0)
+                            pr_num+=1
+                            set_num+=1
+                            gen_prop_no = 1
+                        else:
+                            make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('vec_field'),st,cfg,t0)
+                            pr_num+=1
+                            set_num+=1
                     else:
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,len(sources)+modified_sources.index(st),st,cfg,t0)
                         pr_num+=1
                         set_num+=1
-                elif st =='G5-G5':
-                    if gen_prop_no == 0:
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('rcw'),st,cfg,t0)
-                        pr_num+=1
-                        set_num+=1
-                        gen_prop_no = 1
-                    else:
-                        make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,sources.index('vec_field'),st,cfg,t0)
-                        pr_num+=1
-                        set_num+=1
-                else:
-                    make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_num,pr_num,len(sources)+modified_sources.index(st),st,cfg,t0)
-                    pr_num+=1
-                    set_num+=1
                     
         #~~~~~~~~~~~~~~~~~~~~~ PARENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if 'parent prop' in data:

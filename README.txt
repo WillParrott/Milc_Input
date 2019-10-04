@@ -13,7 +13,9 @@ At the present time, only 'G5-G5' daughter propagators will be saved or loaded, 
 
 All generated props will be checked in the two point case, and loaded props may be checked or not checked. Whether the propagtor is checked or not will affect the source it is assigned.
 
-No loaded props are checked in the three point case at the current time. 
+No loaded props are checked in the three point case at the current time.
+
+My understanding of the check yes option on a loaded propagator is that the propagator is passed to the inverter and the inverter iterates until it reaches the tolerance required (as usual but starting from the loaded propagator). This means that if the propagator you are loading were calculated less precisely than the propagators you are generating, the propagator will be changed slightly. 
 
 Calculation set up:
 
