@@ -1,4 +1,4 @@
-This set us is intended to produce 2 point, extended source and 3 point MILC input files from a "simplified" yaml file.
+This set up is intended to produce 2 point, extended source and 3 point MILC input files from a "simplified" yaml file.
 
 The script is currently limited to the case where we have:
 1) A 'heavy' parent quark with a variety of masses and spin taste and a single twist.
