@@ -21,6 +21,8 @@ def edit_submit(data): # edits submit script so the input file read and written 
     for line in lines:
         if (line.find('milc_in') != -1 or line.find('milc_out') != -1) and line.find('mpirun') ==-1 :
             g.write(line[:line.find('/milc')+1] + data['lattice info']['tag'] + line[line.find('/milc')+1:])
+        elif line.find('local ens=') != -1:
+            g.write('  local ens={0}'.format(data['lattice info']['ens']))
         else:
             g.write(line)
     g.close()
