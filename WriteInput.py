@@ -23,6 +23,8 @@ def edit_submit(data): # edits submit script so the input file read and written 
             g.write(line[:line.find('/milc')+1] + data['lattice info']['tag'] + line[line.find('/milc')+1:])
         elif line.find('local ens=') != -1:
             g.write('  local ens={0}'.format(data['lattice info']['ens']))
+        elif line.find('rm ${temp}/${ens}*${cfg}_*') != -1:
+            g.write('  rm {0}temp{1}/{2}{0}ens{1}*{0}cfg{1}_*\n'.format('${','}',data['lattice info']['tag']))
         else:
             g.write(line)
     g.close()
@@ -706,6 +708,7 @@ def main_3pts(argv):
             i += 1 
             linebreak('Description of base sources',input_file,40)
             ###################### BASE SOURCES ################################
+            input_file.write('number_of_base_sources {0}\n'.format(1+len(data['parent prop']['spin_taste'])))
             make_base_source('vec_prop',0,input_file,data,t0,cfg,'no_file_name_needed')
             for n,st in enumerate(data['parent prop']['spin_taste']):
                 fname = './temp/{6}{0}.{1}_t{2}_extsrc_{3}_T{4}_m{5}'.format(data['lattice info']['ens'],cfg,t0,st,T,data['spectator prop']['mass'],data['lattice info']['tag'])
