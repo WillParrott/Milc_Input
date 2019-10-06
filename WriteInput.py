@@ -724,7 +724,14 @@ def main_3pts(argv):
             #~~~~~~~~~~~~~~~~~~ DAUGHTER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             for st in remove_duplicates(data['daughter prop']['spin_taste']):
                 for twist in data['daughter prop']['twists']:
-                    make_daughter_set_prop_3pt(Props,data['daughter prop']['save'],input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                    if data['spectator prop']['same'] == True and st == 'G5-G5' and twist == data['spectator prop']['twist']:
+                        if data['spectator prop']['save'] == True and data['spectator prop']['load'] == False:
+                            saved = True
+                        else:
+                            saved = False
+                        make_daughter_set_prop_3pt(Props,saved,input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                    else:
+                        make_daughter_set_prop_3pt(Props,data['daughter prop']['save'],input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
                     pr_num += 1 
                     set_num += 1
             #~~~~~~~~~~~~~~~~~~~~~ PARENT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
