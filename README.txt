@@ -46,13 +46,9 @@ An additional feature is that the tag specified in setting.yaml will be applied 
 
 To run this code you will need directories and files:
 
-out/
 in/setting.yaml
-in/input-2pt/
-in/input-3pt/
-in/input-extsrc/
-props/(if you want to save any props)
-temp/
 submit/ (where submit script will be rewritten to)
 
 Plus somewhere to save the correlators, which you will specify in the .yaml file. 
+
+Other directores will be created if they are needed. 

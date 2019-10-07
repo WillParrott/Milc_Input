@@ -3,6 +3,7 @@ import io
 import sys
 from math import sqrt, cosh, sinh
 import collections
+import os
 
 reload_check_iters = 1000
 
@@ -31,6 +32,42 @@ def edit_submit(data): # edits submit script so the input file read and written 
     return()
 
 edit_submit(data)
+
+def make_directories(data):
+    if not os.path.exists('./corrs'):
+        os.makedirs('./corrs')
+    if not os.path.exists('./temp'):
+        os.makedirs('./temp')
+    if not os.path.exists('./props'):
+        os.makedirs('./props')
+    if not os.path.exists('./out'):
+        os.makedirs('./out')
+    if not os.path.exists('./in/input-2pt'):
+        os.makedirs('./in/input-2pt')
+    if data['lattice info']['justtwopoints'] == False:
+        if not os.path.exists('./in/input-extsrc'):
+            os.makedirs('./in/input-extsrc')
+        if not os.path.exists('./in/input-3pt'):
+            os.makedirs('./in/input-3pt')
+    if 'parent prop' in data:
+        for st in data['parent prop']['spin_taste']:
+            if not os.path.exists('./corrs/{0}-{1}_tw{2}'.format(data['parent prop']['name'],st,data['parent prop']['twist'])):
+                os.makedirs('./corrs/{0}-{1}_tw{2}'.format(data['parent prop']['name'],st,data['parent prop']['twist']))
+                
+    if 'daughter prop' in data:
+        for st in data['daughter prop']['spin_taste']:
+            for twist in data['daughter prop']['twists']:
+                if not os.path.exists('./corrs/{0}-{1}_tw{2}'.format(data['daughter prop']['name'],st,twist)):
+                    os.makedirs('./corrs/{0}-{1}_tw{2}'.format(data['daughter prop']['name'],st,twist))
+    if data['lattice info']['justtwopoints'] == False:
+        for k in range(len(data['three points']['p J d'])):
+            for twist in data['daughter prop']['twists']:
+                if not os.path.exists('./corrs/current-{0}_tw{1}'.format(data['three points']['label'][k],twist)):
+                    os.makedirs('./corrs/current-{0}_tw{1}'.format(data['three points']['label'][k],twist))
+                    
+        
+    return()
+make_directories(data)
 
 def naik(mass):
     mc=float(mass)
@@ -269,7 +306,7 @@ def make_mesons(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_t
     input_file.write('#Meson masses {0} {1} twist {2} {3}\n'.format(mass1,mass2,twist,spin_taste))
     input_file.write('pair {0} {1}\n'.format(prop1,prop2))
     input_file.write('spectrum_request meson\n')
-    input_file.write('save_corr_fnal {0}\n'.format(filename))
+    input_file.write('save_corr_fnal ./corrs/{0}\n'.format(filename))
     input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
     input_file.write('number_of_correlators 1\n')
     input_file.write('correlator ps p000 1 / {0} {1} 0 0 0 E E E\n'.format(data['lattice info']['wpnorm'],spin_taste))
@@ -529,11 +566,18 @@ def main_2pts(argv):
         input_file.write('number_of_mesons {0}\n'.format(meson_no))
         if data['spectator prop']['same'] == True:
             for i in range(start,meson_no+start):
-                filename = data['{0} prop'.format(Props['type'][i])]['corr_files'][data['{0} prop'.format(Props['type'][i])]['spin_taste'].index(Props['st'][i])].format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,Props['mass'][0],Props['mass'][i])
+                if Props['type'][i] == 'parent':
+                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['parent prop']['name'])
+                elif Props['type'][i] == 'daughter':
+                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['daughter prop']['name'])
+                    
                 make_mesons(data,filename,input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
         if data['spectator prop']['same'] == False:
             for i in range(1,meson_no+1):
-                filename = data['{0} prop'.format(Props['type'][i])]['corr_files'][data['{0} prop'.format(Props['type'][i])]['spin_taste'].index(Props['st'][i])].format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,Props['mass'][0],Props['mass'][i])
+                if Props['type'][i] == 'parent':
+                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['parent prop']['name'])
+                elif Props['type'][i] == 'daughter':
+                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['daughter prop']['name'])
                 make_mesons(data,filename,input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
         
         linebreak('Description of baryons',input_file,40)
@@ -665,7 +709,7 @@ def make_mesons_3pt(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,sp
     input_file.write('# current-{5} masses {0} {1} {2} twist {3} {4}\n'.format(mass1,mass2,data['spectator prop']['mass'],twist,spin_taste,label))
     input_file.write('pair {0} {1}\n'.format(prop1,prop2))
     input_file.write('spectrum_request meson\n')
-    input_file.write('save_corr_fnal {0}\n'.format(filename))
+    input_file.write('save_corr_fnal ./corrs/{0}\n'.format(filename))
     input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
     input_file.write('number_of_correlators 1\n')
     input_file.write('correlator ps p000 1 / {0} {1} 0 0 0 E E E\n'.format(data['lattice info']['wpnorm'],spin_taste))
