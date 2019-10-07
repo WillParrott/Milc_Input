@@ -16,6 +16,8 @@ lattice info:
   tag: Esther_test-           #Tag go on front of saved versions
   justtwopoints: True       # Do we want to only generate 2 points?
   submit: ./submit/submit_ks_spectrum_hisq.slurm-skylake  # submit script modified to name input and output using tag
+
+
 #props (all of them)
 
 parent prop:
@@ -59,10 +61,8 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
   same: False      # Is this the same as a daughter prop?
   load: True
   check: yes      
-  mass: 0.0376    #0.0165
+  mass: 0.0376    
   twist: 0           
-  spin_taste:
-  - G5-G5         # We assume this is true and it is hard coded
   error: 1e-8
   rel_error: 0
   save: False
@@ -71,7 +71,7 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
 # Daughter props we want to load (these should appear in daughter prop too )
 
 #daughter load:
-#  check: no        # yes or no on checking the loaded file
+#  check: yes        # yes or no on checking the loaded file
 #  twists:
 #  - 0
 #  spin_taste:
