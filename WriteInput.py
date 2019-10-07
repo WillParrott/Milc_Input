@@ -654,12 +654,9 @@ def no_sets_mesons_3pts(data):
         set_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists'])  
         
     p_no = len(data['parent prop']['spin_taste'])*len(data['parent prop']['masses']) + len(data['daughter prop']['spin_taste'])*len(data['daughter prop']['twists']) 
-    if data['spectator prop']['same'] == True:
-        prop_no = p_no
-    elif data['spectator prop']['same'] == False:
-        prop_no = p_no + 1
+        
     meson_no =  len(data['three points']['p J d'])*len(data['daughter prop']['twists'])*len(data['parent prop']['masses'])
-    return(set_no,meson_no,prop_no)
+    return(set_no,meson_no,p_no)
 
 
 def make_mesons_3pt(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,spin_taste,label):   
