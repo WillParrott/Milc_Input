@@ -15,12 +15,12 @@ dconf=12
 gen_input()
 {
   local cfg=$1
-#  source /home/dc-parr2/venv3/bin/activate
+  source /home/dc-parr2/venv3/bin/activate
   python3 ./in/WriteInput.py $cfg
 }
 
 for cfg in $(seq $conf_start $dconf $conf_end); do
   gen_input $cfg
   echo "configuration number: $cfg"
-#  sbatch ./submit/use_this_submit $cfg
+  sbatch ./submit/use_this_submit $cfg
 done
