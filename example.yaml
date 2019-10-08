@@ -23,11 +23,11 @@ lattice info:
 parent prop:
   name: B
   masses:
-  - 0.449
-  - 0.566
-  - 0.683
-  - 0.8
-  twist: 0
+  - '0.449'
+  - '0.566'
+  - '0.683'
+  - '0.8'
+  twist: '0'
   spin_taste:      # any spin tastes we wish to generate
   - G5-G5
   - G5T-G5T
@@ -40,11 +40,11 @@ daughter prop:   # All daughter props regardless of if they are loaded or 2pts e
   name: K
   mass: 0.0376
   twists:
-  - 0
-  - 0.4281
-  - 1.282
-  - 2.141
-  - 2.570
+  - '0'
+  - '0.4281'
+  - '1.282'
+  - '2.141'
+  - '2.570'
   spin_taste:    
   - G5-G5         # List of all spin tastes
   - G5-G5X
@@ -68,11 +68,11 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
 daughter load:
   check: no        # yes or no on checking the loaded file
   twists:
-  - 0
-  - 0.4281
-  - 1.282
-  - 2.141
-  #- 2.570
+  - '0'
+  - '0.4281'
+  - '1.282'
+  - '2.141'
+  #- '2.570'
   spin_taste:
   - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
   - G5-G5
@@ -88,10 +88,10 @@ daughter load:
 # Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we have the props for these. If we do not, then we will need to run them for the 3 points so may as well regenerate the 2 points now. 
 
 daughter existing:
-  mass: 0.0376
+  mass: '0.0376'
   twists:
-  - 0.4281
-  - 2.570
+  - '0.4281'
+  - '2.570'
   spin_taste:
   - G5-G5
   - G5-G5X

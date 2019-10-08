@@ -212,7 +212,7 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     Props['twist'].append(twist)
     Props['type'].append('daughter')
     if load == True:
-        load_directory = data['spectator prop']['load_directory'][data['daughter load']['twists'].index(twist)].format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],twist)
+        load_directory = data['daughter load']['load_directory'][data['daughter load']['twists'].index(twist)].format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist)
     input_file.write('\n')
     input_file.write('# ==================\n')
     input_file.write('#Parameters for daughter set {0} {1}\n'.format(set_no,spin_taste))

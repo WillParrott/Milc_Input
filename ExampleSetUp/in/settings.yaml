@@ -21,10 +21,10 @@ lattice info:
 parent prop:
   name: B
   masses:
-  - 0.194
-  - 0.45
-  #- 0.6
-  #- 0.8
+  - '0.194'
+  - '0.45'
+  #- '0.6'
+  #- '0.8'
   twist: 0
   spin_taste:
   - G5-G5
@@ -36,13 +36,13 @@ parent prop:
 
 daughter prop:
   name: K
-  mass: 0.065
+  mass: '0.065'
   twists:
-  - 0
-  - 0.706
-  #- 1.529
-  #- 2.235
-  #- 4.705
+  - '0'
+  - '0.706'
+  #- '1.529'
+  #- '2.235'
+  #- '4.705'
   spin_taste:    
   - G5-G5         # List of all spin tastes
   - G5-G5X
@@ -66,10 +66,10 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
 #daughter load:
 #  check: no        # yes or no on checking the loaded file
 #  twists:
-#  - 0
-#  - 0.4281
-#  - 1.282
-#  - 2.141
+#  - '0'
+#  - '0.4281'
+#  - '1.282'
+#  - '2.141'
 #  #- 2.570
 #  spin_taste:
 #  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
@@ -85,11 +85,11 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
 #daughter existing:
 #  mass: 0.0376
 #  twists:
-#  - 0
-#  - 0.4281
-#  - 1.282
-#  - 2.141
-#  - 2.570
+#  - '0'
+#  - '0.4281'
+#  - '1.282'
+#  - '2.141'
+#  - '2.570'
 #  spin_taste:
 #  - G5-G5
 #  - G5-G5
