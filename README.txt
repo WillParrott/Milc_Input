@@ -29,7 +29,7 @@ Loaded check yes propagators go on a random_color_wall source.
 The first generated set of G5-G5 propagators go on a random_color_wall, and all subsequent sets on the vector_field source reloaded from this.
 Non G5-G5 spin-taste propagators are assigned to their respective modified source, which is modified off the vector_field source. 
 
-This is because using a random_color_wall source to generate (and not just check) a propagator means it cannot be reused. However, in order for the cource to be saved, a propagator must be generated from it. This means we must generate the first set of propagators from this source and then reload it for all others. This means that, if we have non G5-G5 spin-tastes, we must also be generating at least one 'G5-G5' propagator too and first, in order for the source to save. There are ways around this, but they are not built into this script. 
+This is because using a random_color_wall source to generate (and not just check) a propagator means it cannot be reused. However, in order for the source to be saved, a propagator must be generated from it. This means we must generate the first set of propagators from this source and then reload it for all others. This means that, if we have non G5-G5 spin-tastes, we must also be generating at least one 'G5-G5' propagator too and first, in order for the source to save. There are ways around this, but they are not built into this script. 
 
 In the three points: 
 
@@ -49,6 +49,6 @@ To run this code you will need directories and files:
 in/setting.yaml
 submit/ (where submit script will be rewritten to)
 
-Plus somewhere to save the correlators, which you will specify in the .yaml file. 
+Other directories will be created if they are needed. 
 
-Other directores will be created if they are needed. 
+The ExampleSetUp directory contains everything you should need to run. The code should also now generate its own extract script, tailored to .yaml file, which will be saved in extract, with the appropriate tag. 

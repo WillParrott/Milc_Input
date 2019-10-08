@@ -18,6 +18,8 @@ def edit_submit(data): # edits submit script so the input file read and written 
     f = open(data['lattice info']['submit'], 'r')
     lines = f.readlines()
     f.close()
+    if not os.path.exists('./submit'):
+        os.makedirs('./submit')
     g = open('./submit/use_this_submit', 'w+')
     for line in lines:
         if (line.find('milc_in') != -1 or line.find('milc_out') != -1) and line.find('mpirun') ==-1 :
@@ -51,14 +53,14 @@ def make_directories(data):
             os.makedirs('./in/input-3pt')
     if 'parent prop' in data:
         for st in data['parent prop']['spin_taste']:
-            if not os.path.exists('./corrs/{0}-{1}_tw{2}'.format(data['parent prop']['name'],st,data['parent prop']['twist'])):
-                os.makedirs('./corrs/{0}-{1}_tw{2}'.format(data['parent prop']['name'],st,data['parent prop']['twist']))
+            if not os.path.exists('./corrs/{0}_{1}_tw{2}'.format(data['parent prop']['name'],st,data['parent prop']['twist'])):
+                os.makedirs('./corrs/{0}_{1}_tw{2}'.format(data['parent prop']['name'],st,data['parent prop']['twist']))
                 
     if 'daughter prop' in data:
         for st in data['daughter prop']['spin_taste']:
             for twist in data['daughter prop']['twists']:
-                if not os.path.exists('./corrs/{0}-{1}_tw{2}'.format(data['daughter prop']['name'],st,twist)):
-                    os.makedirs('./corrs/{0}-{1}_tw{2}'.format(data['daughter prop']['name'],st,twist))
+                if not os.path.exists('./corrs/{0}_{1}_tw{2}'.format(data['daughter prop']['name'],st,twist)):
+                    os.makedirs('./corrs/{0}_{1}_tw{2}'.format(data['daughter prop']['name'],st,twist))
     if data['lattice info']['justtwopoints'] == False:
         for k in range(len(data['three points']['p J d'])):
             for twist in data['daughter prop']['twists']:
@@ -567,17 +569,17 @@ def main_2pts(argv):
         if data['spectator prop']['same'] == True:
             for i in range(start,meson_no+start):
                 if Props['type'][i] == 'parent':
-                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['parent prop']['name'])
+                    filename = '{8}_{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['parent prop']['name'])
                 elif Props['type'][i] == 'daughter':
-                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['daughter prop']['name'])
+                    filename = '{8}_{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['daughter prop']['name'])
                     
                 make_mesons(data,filename,input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
         if data['spectator prop']['same'] == False:
             for i in range(1,meson_no+1):
                 if Props['type'][i] == 'parent':
-                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['parent prop']['name'])
+                    filename = '{8}_{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['parent prop']['name'])
                 elif Props['type'][i] == 'daughter':
-                    filename = '{8}-{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['daughter prop']['name'])
+                    filename = '{8}_{7}_tw{0}/{1}meson-{8}-{7}.{2}.{3}_t{4}_m{5}_m{6}'.format(Props['twist'][i],data['lattice info']['tag'],data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],Props['mass'][i],Props['st'][i],data['daughter prop']['name'])
                 make_mesons(data,filename,input_file,Props['mass'][0],Props['mass'][i],0,i,Props['twist'][i],t0,Props['st'][i])
         
         linebreak('Description of baryons',input_file,40)
@@ -709,7 +711,7 @@ def make_mesons_3pt(data,filename,input_file,mass1,mass2,prop1,prop2,twist,t0,sp
     input_file.write('# current-{5} masses {0} {1} {2} twist {3} {4}\n'.format(mass1,mass2,data['spectator prop']['mass'],twist,spin_taste,label))
     input_file.write('pair {0} {1}\n'.format(prop1,prop2))
     input_file.write('spectrum_request meson\n')
-    input_file.write('save_corr_fnal ./corrs/{0}\n'.format(filename))
+    input_file.write('save_corr_fnal {0}\n'.format(filename))
     input_file.write('r_offset 0 0 0 {0}\n'.format(t0))
     input_file.write('number_of_correlators 1\n')
     input_file.write('correlator ps p000 1 / {0} {1} 0 0 0 E E E\n'.format(data['lattice info']['wpnorm'],spin_taste))
@@ -823,6 +825,194 @@ def main_3pts(argv):
 
 
 
+
+
+def edit_extract(yamldata):    # edits extract/Extract.py
+    if not os.path.exists('./extract'):
+        os.makedirs('./extract')
+    g = open('./extract/{0}Extract.py'.format(yamldata['lattice info']['tag']), 'w+')
+    t0s = []
+    Twists = []
+    Masses = []
+    Data = []
+    twists = []
+    masses = []
+    for tnum in range(yamldata['lattice info']['nsrc']):
+        t0s.append(tnum)
+    if 'daughter prop' in yamldata:
+        Data.append('{0}'.format(yamldata['daughter prop']['name']))
+        for i,tw in enumerate(yamldata['daughter prop']['twists']):
+            Twists.append(i)
+            twists.append('{0}'.format(tw))
+    if 'parent prop' in yamldata:
+        Data.append('{0}'.format(yamldata['parent prop']['name']))
+        for j,m in enumerate(yamldata['parent prop']['masses']):
+            Masses.append(j)
+            masses.append('{0}'.format(m))
+    if yamldata['lattice info']['justtwopoints'] == False:
+        for label in yamldata['three points']['label']:
+           Data.append('{0}'.format(label))
+    data = []
+    if 'parent prop' in yamldata:
+        for st in yamldata['parent prop']['spin_taste']:
+            data.append('../corrs/{0}_{1}_tw{2}'.format(yamldata['parent prop']['name'],st,yamldata['parent prop']['twist']))
+    if 'daughter prop' in yamldata:
+        for st in yamldata['daughter prop']['spin_taste']:
+            for twist in yamldata['daughter prop']['twists']:
+                data.append('../corrs/{0}_{1}_tw{2}'.format(yamldata['daughter prop']['name'],st,twist))
+    if yamldata['lattice info']['justtwopoints'] == False:
+        for k in range(len(yamldata['three points']['p J d'])):
+            for twist in yamldata['daughter prop']['twists']:
+                data.append('../corrs/current-{0}_tw{1}'.format(yamldata['three points']['label'][k],twist))
+
+    Ts = []
+    for T in range(yamldata['three points']['nT']):
+        Ts.append(yamldata['three points']['Tstart']+T*yamldata['three points']['dT'])
+    g.write("import collections\n")
+    g.write("import os.path\n")
+    g.write("\n")
+    g.write("# To edit\n")
+    g.write("##########################################\n")
+    g.write("cfgstart =\n")
+    g.write("cfgend =\n")
+    g.write("dconf =\n")
+    g.write("\n")
+    g.write("t0s = {0}\n".format(t0s))
+    g.write("Twists = {0}\n".format(Twists))
+    g.write("Masses = {0}\n".format(Masses))
+    g.write("Ts = {0}\n".format(Ts))
+    g.write("Data = {0}\n".format(Data))
+    g.write("negative = False\n")
+    g.write("##########################################\n")
+    g.write("\n")
+    g.write("\n")
+    g.write("\n")
+    g.write("\n")
+    g.write("twists = {0}\n".format(twists))
+    g.write("masses = {0}\n".format(masses))
+    g.write("data = {0}\n".format(data))
+    g.write("lat ='{0}'\n".format(yamldata['lattice info']['ens']))
+    g.write("nx = {0}\n".format(yamldata['lattice info']['nx']))
+    g.write("ny = {0}\n".format(yamldata['lattice info']['ny']))
+    g.write("nz = {0}\n".format(yamldata['lattice info']['nz']))
+    g.write("nt = {0}\n".format(yamldata['lattice info']['nt']))
+    g.write("mspec = {0}\n".format(yamldata['spectator prop']['mass']))
+    g.write("mdaughter = {0}\n".format(yamldata['daughter prop']['mass']))
+    g.write("nsrc = {0}\n".format(yamldata['lattice info']['nsrc']))
+    g.write("dsrc = nt/nsrc\n")
+    g.write("tag = '{0}'\n".format(yamldata['lattice info']['tag']))
+    g.write("\n")
+    g.write("labforgpl = Data[0]\n")
+    g.write("for i,element in enumerate(Data):\n")
+    g.write("    if i !=0:\n")
+    g.write("        labforgpl ='{0}{1}'.format(labforgpl,element)\n")
+    g.write("\n")
+    g.write("gpl = '{0}_{1}cfgs_neg{2}.gpl'.format(labforgpl,int((cfgend-cfgstart)/12 +1),negative)\n")
+    g.write("\n")
+    g.write("if os.path.exists(gpl):\n")
+    g.write("    os.remove(gpl)\n")
+    g.write("\n")
+    g.write("def main():\n")
+    g.write("    for cfg in range(cfgstart,cfgend+dconf,dconf):\n")
+    g.write("        sources = []\n")
+    g.write("        for n in range(len(t0s)):\n")
+    g.write("            sources.append(int((19*(cfg/{0})) % dsrc + t0s[n]*dsrc))\n".format(yamldata['lattice info']['nsrcdivider']))
+    if 'parent prop' in yamldata:
+        g.write("        if '{0}' in Data:\n".format(yamldata['parent prop']['name']))
+        g.write("            for element in data:\n")
+        g.write("                if element.split('/')[2][0] == '{0}':\n".format(yamldata['parent prop']['name']))
+        g.write("                    for Mass in Masses:\n")
+        g.write("                        mass = masses[Mass]\n")
+        g.write("                        spin_taste = element.split('/')[2].split('_')[1]\n")
+        g.write("                        filenames = []\n")
+        g.write("                        datatag = '{0}_{1}_m{2}'.format(element.split('/')[2][0],spin_taste,mass)\n")
+        g.write("                        for source in sources:\n")
+        g.write("                            filenames.append('{8}/{0}meson-{7}-{6}.{1}.{2}_t{3}_m{4}_m{5}'.format(tag,lat,cfg,source,mspec,mass,spin_taste,element.split('/')[2][0],element))\n")
+        g.write("                        average(filenames,datatag)\n")
+    if 'daughter prop' in yamldata:
+        g.write("        if '{0}' in Data:\n".format(yamldata['daughter prop']['name']))
+        g.write("            for element in data:\n")
+        g.write("                if element.split('/')[2][0] == '{0}':\n".format(yamldata['daughter prop']['name']))
+        g.write("                    twist = element.split('/')[2].split('_tw')[1]\n")
+        g.write("                    spin_taste = element.split('/')[2].split('_')[1]\n")
+        g.write("                    filenames = []\n")
+        g.write("                    datatag = '{0}_{1}_tw{2}'.format(element.split('/')[2][0],spin_taste,twist)\n")
+        g.write("                    for source in sources:\n")
+        g.write("                        filenames.append('{8}/{0}meson-{7}-{6}.{1}.{2}_t{3}_m{4}_m{5}'.format(tag,lat,cfg,source,mspec,mdaughter,spin_taste,element.split('/')[2][0],element))\n")
+        g.write("                    average(filenames,datatag)\n")
+    if yamldata['lattice info']['justtwopoints'] == False:
+        for threeptlabel in yamldata['three points']['label']:
+            g.write("        if '{0}' in Data:\n".format(threeptlabel))
+            g.write("            for element in data:\n")
+            g.write("                if element.split('/')[2].split('-')[1].split('_')[0] == '{0}':\n".format(threeptlabel))
+            g.write("                    twist = element.split('/')[2].split('_tw')[1]\n")
+            g.write("                    for Mass in Masses:\n")
+            g.write("                        mass = masses[Mass]\n")
+            g.write("                        for T in Ts:\n")
+            g.write("                            filenames = []\n")
+            g.write("                            datatag = '{0}_T{1}_m{2}_m{3}_m{4}_tw{5}'.format(element.split('/')[2].split('-')[1].split('_')[0],T,mdaughter,mass,mspec,twist)\n")
+            g.write("                            for source in sources:\n")
+            g.write("                                filenames.append('{0}/{10}current-{1}.{3}.{4}_t{5}_T{6}_m{7}_m{8}_m{9}_tw{2}'.format(element,element.split('/')[2].split('-')[1].split('_')[0],twist,lat,cfg,source,T,mdaughter,mass,mspec,tag))\n")
+            g.write("                            average(filenames,datatag)\n")
+
+    g.write("        \n")
+    g.write("    return()\n")
+    g.write("def test_zeros(filename):\n")
+    g.write("    if os.stat(filename).st_size ==0:\n")
+    g.write("        print(filename, 'empty')\n")
+    g.write("    f = open(filename,'r')\n")
+    g.write("    lastDots =0\n")
+    g.write("    lines=f.readlines()\n")
+    g.write("    for i, line in enumerate(lines):\n")
+    g.write("        if line == '...\\n':\n")
+    g.write("            lastDots = i\n")
+    g.write("    if lines[lastDots + 5].split()[1]=='0.000000e+00':\n")
+    g.write("        print(filename, 'contains zeros')\n")
+    g.write("    f.close()\n")
+    g.write("    return()\n")
+    g.write("\n")
+    g.write("\n")
+    g.write("def average(filenames,datatag):\n")
+    g.write("    result = collections.OrderedDict()   \n")
+    g.write("    for filename in filenames:                          #filenames is list of files to be averaged\n")
+    g.write("        result[filename] = []\n")
+    g.write("        lastdots = 0\n")
+    g.write("        if os.path.exists(filename):\n")
+    g.write("            test_zeros(filename)\n")
+    g.write("            f = open(filename, 'r')\n")
+    g.write("        else:\n")
+    g.write("            print(filename, 'Does not exist')\n")
+    g.write("            return()\n")
+    g.write("        lines = f.readlines()\n")
+    g.write("        #print('lines',lines)\n")
+    g.write("        for i , line in enumerate(lines):\n")
+    g.write("            if line == '...\\n':\n")
+    g.write("                lastdots = i\n")
+    g.write("        for j in range(lastdots+1,lastdots+1+nt):\n")
+    g.write("            result[filename].append(lines[j].split()[1])\n")
+    g.write("        f.close()\n")
+    g.write("    g = open(gpl,'a+')\n")
+    g.write("    g.write('{0}    '.format(datatag))\n")
+    g.write("    for i in range(nt):\n")
+    g.write("        average = 0\n")
+    g.write("        for filename in filenames:\n")
+    g.write("            average += float(result[filename][i])/len(filenames)\n")
+    g.write("        if negative == True:\n")
+    g.write("            average = -average\n")
+    g.write("        g.write('{0:.11g}    '.format(average))\n")
+    g.write("    g.write('\\n')\n")
+    g.write("    g.close()\n")
+    g.write("    return()\n")
+    g.write("\n")
+    g.write("\n")
+    g.write("main()\n")
+    g.write("\n")
+    g.close()    
+    return()
+
+
+
+edit_extract(data)
 
 
 main_2pts(sys.argv[1:])

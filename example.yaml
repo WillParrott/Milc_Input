@@ -21,6 +21,7 @@ lattice info:
 #props (all of them)
 
 parent prop:
+  name: B
   masses:
   - 0.449
   - 0.566
@@ -32,13 +33,11 @@ parent prop:
   - G5T-G5T
   error: 0
   rel_error: 6e-14
-  corr_files:          #Place to save 2pt corrs, elements in list correspond to same elements in spin_taste
-  - ./corrs/Hs_tw{0}/{1}meson.{2}.{3}_t{4}_m{5}_m{6}         #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
-  - ./corrs/Hs-G5T_tw{0}/{1}meson-G5T.{2}.{3}_t{4}_m{5}_m{6} #set up so followed by .format(twist,tag,ens,cfg,t0,m1,m2)
   multimass: True                                           #Do you want to use a multimass inverter, ie group together in one set
 
 
 daughter prop:   # All daughter props regardless of if they are loaded or 2pts exist already
+  name: K
   mass: 0.0376
   twists:
   - 0
@@ -52,9 +51,6 @@ daughter prop:   # All daughter props regardless of if they are loaded or 2pts e
   error: 1e-8
   rel_error: 0
   save: True      # Will not save props which are loaded. Currently only saves G5-G5. All are saved to temp if not saved and reloaded for 3pts 
-  corr_files:
-  - ./corrs/etas_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
-  - ./corrs/K-G5X_tw{0}/{1}etas-meson.{2}.{3}_t{4}_m{5}_m{6} #set up so follewed by .format(twist,tag,ens,cfg,t0,m1,m2)
 
 spectator prop:   # Put this in even if it is the same as one of the daughter props
   same: True      # Is this the same as a daughter prop?
