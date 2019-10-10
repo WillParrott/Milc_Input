@@ -15,6 +15,7 @@ def load_data():
 data = load_data()
 
 def edit_submit(data): # edits submit script so the input file read and written includes the tag
+    cfg = int(sys.argv[1:][0])
     f = open(data['lattice info']['submit'], 'r')
     lines = f.readlines()
     f.close()
@@ -26,6 +27,22 @@ def edit_submit(data): # edits submit script so the input file read and written 
             g.write(line[:line.find('/milc')+1] + data['lattice info']['tag'] + line[line.find('/milc')+1:])
         elif line.find('local ens=') != -1:
             g.write('  local ens={0}'.format(data['lattice info']['ens']))
+        elif line.find('#SBATCH --job-name=') != -1:
+            if 'parent prop' in data and 'daughter prop' in data and data['lattice info']['justtwopoints'] == False:
+                g.write('#SBATCH --job-name={0}{1}to{2}-{3}\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
+            else:
+                g.write('#SBATCH --job-name={0}Two_pts-{1}\n'.format(data['lattice info']['tag'],cfg))
+        elif line.find('#SBATCH --output=') != -1:
+            if 'parent prop' in data and 'daughter prop' in data and data['lattice info']['justtwopoints'] == False:
+                g.write('#SBATCH --output=./out/{0}{1}to{2}-{3}-%A.out\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
+            else:
+                g.write('#SBATCH --output=./out/{0}Two_pts-{1}-%A.out\n'.format(data['lattice info']['tag'],cfg))
+        elif line.find('#SBATCH --error=') != -1:
+            if 'parent prop' in data and 'daughter prop' in data and data['lattice info']['justtwopoints'] == False:
+                g.write('#SBATCH --error=./out/{0}{1}to{2}-{3}-%A.err\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
+            else:
+                g.write('#SBATCH --error=./out/{0}Two_pts-{1}-%A.err\n'.format(data['lattice info']['tag'],cfg))
+        
         elif line.find('rm ${temp}/${ens}*${cfg}_*') != -1:
             g.write('  rm {0}temp{1}/{2}{0}ens{1}*{0}cfg{1}_*\n'.format('${','}',data['lattice info']['tag']))
         else:
@@ -913,7 +930,7 @@ def edit_extract(yamldata):    # edits extract/Extract.py
     g.write("    if i !=0:\n")
     g.write("        labforgpl ='{0}{1}'.format(labforgpl,element)\n")
     g.write("\n")
-    g.write("gpl = '{0}_{1}cfgs_neg{2}.gpl'.format(labforgpl,int((cfgend-cfgstart)/12 +1-len(skip)),negative)\n")
+    g.write("gpl = '{0}_{1}cfgs_neg{2}.gpl'.format(labforgpl,int((cfgend-cfgstart)/dconf +1-len(skip)),negative)\n")
     g.write("\n")
     g.write("if os.path.exists(gpl):\n")
     g.write("    os.remove(gpl)\n")
@@ -963,7 +980,7 @@ def edit_extract(yamldata):    # edits extract/Extract.py
             g.write("                                filenames.append('{0}/{10}current-{1}.{3}.{4}_t{5}_T{6}_m{7}_m{8}_m{9}_tw{2}'.format(element,element.split('/')[2].split('-')[1].split('_')[0],twist,lat,cfg,source,T,mdaughter,mass,mspec,tag))\n")
             g.write("                            average(filenames,datatag)\n")
 
-    g.write("        \n")
+    g.write("        print('Extracted conf', cfg)\n")
     g.write("    return()\n")
     g.write("def test_zeros(filename):\n")
     g.write("    if os.stat(filename).st_size ==0:\n")
