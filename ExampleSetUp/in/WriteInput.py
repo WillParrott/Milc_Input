@@ -29,19 +29,19 @@ def edit_submit(data): # edits submit script so the input file read and written 
             g.write('  local ens={0}'.format(data['lattice info']['ens']))
         elif line.find('#SBATCH --job-name=') != -1:
             if 'parent prop' in data and 'daughter prop' in data and data['lattice info']['justtwopoints'] == False:
-                g.write('#SBATCH --job-name={0}{1}to{2}-{3}\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
+                g.write('#SBATCH --job-name={0}{1}{2}-{3}\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
             else:
-                g.write('#SBATCH --job-name={0}Two_pts-{1}\n'.format(data['lattice info']['tag'],cfg))
+                g.write('#SBATCH --job-name={0}2pt-{1}\n'.format(data['lattice info']['tag'],cfg))
         elif line.find('#SBATCH --output=') != -1:
             if 'parent prop' in data and 'daughter prop' in data and data['lattice info']['justtwopoints'] == False:
-                g.write('#SBATCH --output=./out/{0}{1}to{2}-{3}-%A.out\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
+                g.write('#SBATCH --output=./out/{0}{1}{2}-{3}-%A.out\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
             else:
-                g.write('#SBATCH --output=./out/{0}Two_pts-{1}-%A.out\n'.format(data['lattice info']['tag'],cfg))
+                g.write('#SBATCH --output=./out/{0}2pt-{1}-%A.out\n'.format(data['lattice info']['tag'],cfg))
         elif line.find('#SBATCH --error=') != -1:
             if 'parent prop' in data and 'daughter prop' in data and data['lattice info']['justtwopoints'] == False:
-                g.write('#SBATCH --error=./out/{0}{1}to{2}-{3}-%A.err\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
+                g.write('#SBATCH --error=./out/{0}{1}{2}-{3}-%A.err\n'.format(data['lattice info']['tag'],data['parent prop']['name'],data['daughter prop']['name'],cfg))
             else:
-                g.write('#SBATCH --error=./out/{0}Two_pts-{1}-%A.err\n'.format(data['lattice info']['tag'],cfg))
+                g.write('#SBATCH --error=./out/{0}2pt-{1}-%A.err\n'.format(data['lattice info']['tag'],cfg))
         
         elif line.find('rm ${temp}/${ens}*${cfg}_*') != -1:
             g.write('  rm {0}temp{1}/{2}{0}ens{1}*{0}cfg{1}_*\n'.format('${','}',data['lattice info']['tag']))
