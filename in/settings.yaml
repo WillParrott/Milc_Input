@@ -11,7 +11,8 @@ lattice info:
   max_cg_iterations: 1000
   max_cg_restarts: 3
   precision: 2
-  nsrc: 4             # Number of source times 
+  nsrc: 4             # Number of source times
+  allsources: [2,3]     # True if you want to run all sources, else [0,2,3] eg to skip the second of 4 
   nsrcdivider: 5       #This is the denominator in the source start determination. Usually 5 or 6.	 
   tag: test-           #Tag go on front of saved versions
   justtwopoints: False

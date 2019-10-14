@@ -102,8 +102,12 @@ def times(data,cfg):
     nsrc = int(data['lattice info']['nsrc'])
     dsrc = int(data['lattice info']['nt'])/nsrc
     src_start = (19*(cfg/int(data['lattice info']['nsrcdivider']))) % dsrc
-    for i in range(nsrc):
-        t0s.append(int(src_start + i*dsrc))
+    if data['lattice info']['allsources'] ==  True:
+        for i in range(nsrc):
+            t0s.append(int(src_start + i*dsrc))
+    else:
+        for i in data['lattice info']['allsources']:
+            t0s.append(int(src_start + i*dsrc))
     return(t0s)
 
 def make_preamble_2pt(data,input_file,cfg):

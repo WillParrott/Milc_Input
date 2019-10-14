@@ -11,7 +11,8 @@ lattice info:
   max_cg_iterations: 1000
   max_cg_restarts: 3
   precision: 2
-  nsrc: 4             # Number of source times 
+  nsrc: 4             # Number of source times
+  allsources: [2,3]     # True if you want to run all sources, else [0,2,3] eg to skip the second of 4 
   nsrcdivider: 5       #This is the denominator in the source start determination. Usually 5 or 6.	 
   tag: test-           #Tag go on front of saved versions
   justtwopoints: False
@@ -36,13 +37,13 @@ parent prop:
 
 daughter prop:
   name: K
-  mass: '0.065'
+  mass: 0.065
   twists:
   - '0'
-  - '0.706'
+ # - '0.706'
   #- '1.529'
   #- '2.235'
-  #- '4.705'
+  - '2.570'
   spin_taste:    
   - G5-G5         # List of all spin tastes
   - G5-G5X
@@ -54,7 +55,7 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
   same: False      # Is this the same as a daughter prop?
   load: False
   check: yes      
-  mass: 0.013
+  mass: '0.013'
   twist: 0           
   error: 1e-8
   rel_error: 0
@@ -63,27 +64,27 @@ spectator prop:   # Put this in even if it is the same as one of the daughter pr
 
 # Daughter props we want to load (these should appear in daughter prop too )
 
-#daughter load:
-#  check: no        # yes or no on checking the loaded file
-#  twists:
+daughter load:
+  check: no        # yes or no on checking the loaded file
+  twists:
 #  - '0'
 #  - '0.4281'
 #  - '1.282'
 #  - '2.141'
-#  #- 2.570
-#  spin_taste:
-#  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
-#  load_directory:
+  - '2.570'
+  spin_taste:
+  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
+  load_directory:
 #  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass,twist)
 #  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+ # - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
 #  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
-#  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
-  #- /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
+  - /home/dc-parr2/rds/rds-dirac-dp019/Will/fine/props-links/{0}.{1}_wallprop_m{3}_th{4}_t{2}
 
 # Existing (daughter-spectator) Corrs for which we don't want 2 point functions. We assume we have the props for these. If we do not, then we will need to run them for the 3 points so may as well regenerate the 2 points now. 
 
 #daughter existing:
-#  mass: 0.0376
+#  mass: '0.0376'
 #  twists:
 #  - '0'
 #  - '0.4281'
