@@ -473,7 +473,7 @@ def main_2pts(argv):
         Props['mass'] = []
         Props['twist'] = []
         Props['type'] = []
-        linebreak('Source time {0}'.format(t0) ,input_file,80)
+        linebreak('Source time {0} ({1} of {2})'.format(t0,i+1,len(t0s)) ,input_file,80)
         make_gauge_field(data,cfg,input_file,i)
         linebreak('Description of base sources',input_file,40)
         ################### BASE SOURCES #####################################            
@@ -764,7 +764,7 @@ def main_3pts(argv):
     i = 0
     set_no,meson_no,prop_no = no_sets_mesons_3pts(data)
     currents = get_currents(data)
-    for t0 in t0s:
+    for t0num,t0 in enumerate(t0s):
         Ts,actual_Ts = Times(data,cfg,t0)
         for j,T in enumerate(Ts):
             Props = collections.OrderedDict()
@@ -772,7 +772,7 @@ def main_3pts(argv):
             Props['mass'] = []
             Props['twist'] = []
             Props['type'] = []
-            linebreak('Source time {0}, meson separation T = {1}'.format(t0,actual_Ts[j]-t0) ,input_file,80)
+            linebreak('Source time {0} ({2} of {3}) , meson separation T = {1}'.format(t0,actual_Ts[j]-t0, t0num + 1,len(t0s)) ,input_file,80)
             make_gauge_field(data,cfg,input_file,i)
             i += 1 
             linebreak('Description of base sources',input_file,40)
