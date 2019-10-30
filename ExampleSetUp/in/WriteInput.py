@@ -974,10 +974,10 @@ def edit_extract(yamldata):    # edits extract/Extract.py
         g.write("                    datatag = '{0}_{1}_tw{2}'.format(element.split('/')[2].split('_')[0],spin_taste,twist)\n")
         g.write("                    for source in sources:\n")
         g.write("                        filenames.append('{8}/{0}meson-{7}-{6}.{1}.{2}_t{3}_m{4}_m{5}'.format(tag,lat,cfg,source,mspec,mdaughter,spin_taste,element.split('/')[2].split('_')[0],element))\n")
-        g.write("                        if '{0}' in imaginary:\n".format(yamldata['daughter prop']['name']))
-        g.write("                            average_imaginary(filenames,datatag,g)\n")
-        g.write("                        else:\n")
-        g.write("                            average(filenames,datatag,g)\n") 
+        g.write("                    if '{0}' in imaginary:\n".format(yamldata['daughter prop']['name']))
+        g.write("                        average_imaginary(filenames,datatag,g)\n")
+        g.write("                    else:\n")
+        g.write("                        average(filenames,datatag,g)\n") 
     if yamldata['lattice info']['justtwopoints'] == False:
         for threeptlabel in yamldata['three points']['label']:
             g.write("        if '{0}' in Data:\n".format(threeptlabel))
