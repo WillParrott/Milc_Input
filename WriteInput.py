@@ -88,11 +88,11 @@ def make_directories(data):
     return()
 make_directories(data)
 
-def naik(mass):
+def naik(mass,quark):
     mc=float(mass)
     mtree= mc * ( 1 - 3.0*mc**4 / 80.0 + 23*mc**6/2240 + 1783*mc**8/537600 - 76943*mc**10/23654400 )
     epsilon = ( 4 - sqrt( 4 + 12*mtree/( cosh(mtree)*sinh(mtree) ) )) / (sinh(mtree))**2 - 1
-    if epsilon > -0.0001:
+    if quark == 'strange' or quark == 'light':
         return('0.')
     else:
         return('{0:.4f}'.format(epsilon))
@@ -218,7 +218,7 @@ def make_parent_prop(Props,input_file,data,mass,prop_no):
     input_file.write('\n')
     input_file.write('#Propagator {0}\n'.format(prop_no))
     input_file.write('mass {0}\n'.format(mass))
-    input_file.write('naik_term_epsilon {0}\n'.format(naik(mass)))
+    input_file.write('naik_term_epsilon {0}\n'.format(naik(mass,data['parent prop']['quark'])))
     input_file.write('error_for_propagator {0}\n'.format(data['parent prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['parent prop']['rel_error']))
     input_file.write('fresh_ksprop\n')
@@ -257,7 +257,7 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     input_file.write('\n')
     input_file.write('#Propagator {0}\n'.format(prop_no))                 
     input_file.write('mass {0}\n'.format(data['daughter prop']['mass']))
-    input_file.write('naik_term_epsilon {0}\n'.format(naik(data['daughter prop']['mass'])))
+    input_file.write('naik_term_epsilon {0}\n'.format(naik(data['daughter prop']['mass'],data['daughter prop']['quark'])))
     input_file.write('error_for_propagator {0}\n'.format(data['daughter prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['daughter prop']['rel_error']))
     if load == False:
@@ -309,7 +309,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     input_file.write('\n')
     input_file.write('#Propagator {0}\n'.format(prop_no))                 
     input_file.write('mass {0}\n'.format(data['spectator prop']['mass']))
-    input_file.write('naik_term_epsilon {0}\n'.format(naik(data['spectator prop']['mass'])))
+    input_file.write('naik_term_epsilon {0}\n'.format(naik(data['spectator prop']['mass'],data['spectator prop']['quark'])))
     input_file.write('error_for_propagator {0}\n'.format(data['spectator prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['spectator prop']['rel_error']))
     if load == False:
@@ -706,7 +706,7 @@ def make_daughter_set_prop_3pt(Props,save,input_file,data,twist,set_no,prop_no,s
     input_file.write('\n')
     input_file.write('#Propagator {0}\n'.format(prop_no))                 
     input_file.write('mass {0}\n'.format(data['daughter prop']['mass']))
-    input_file.write('naik_term_epsilon {0}\n'.format(naik(data['daughter prop']['mass'])))
+    input_file.write('naik_term_epsilon {0}\n'.format(naik(data['daughter prop']['mass'],data['daughter prop']['quark'])))
     input_file.write('error_for_propagator {0}\n'.format(data['daughter prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['daughter prop']['rel_error']))
     if save == False:
