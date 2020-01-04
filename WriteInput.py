@@ -935,7 +935,7 @@ def edit_extract(yamldata):    # edits extract/Extract.py
     g.write("    if i !=0:\n")
     g.write("        labforgpl ='{0}{1}'.format(labforgpl,element)\n")
     g.write("\n")
-    g.write("gpl = '{0}_{1}cfgs_neg{2}.gpl'.format(labforgpl,int((cfgend-cfgstart)/dconf +1-len(skip)),negative)\n")
+    g.write("gpl = '{0}{1}_{2}cfgs_neg{3}.gpl'.format(tag,labforgpl,int((cfgend-cfgstart)/dconf +1-len(skip)),negative)\n")
     g.write("print('Writing to {0}'.format(gpl))\n")
     g.write("\n")
     g.write("if os.path.exists(gpl):\n")
