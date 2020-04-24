@@ -799,6 +799,8 @@ def main_3pts(argv):
                         else:
                             saved = False
                         make_daughter_set_prop_3pt(Props,saved,input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
+                    elif 'daughter load' in data and twist in data['daughter load']['twists'] and st==data['daughter load']['spin_taste'][data['daughter load']['twists'].index(twist)]:
+                        make_daughter_set_prop_3pt(Props,False,input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
                     else:
                         make_daughter_set_prop_3pt(Props,data['daughter prop']['save'],input_file,data,twist,set_num,pr_num,0,st,cfg,t0)
                     pr_num += 1 
