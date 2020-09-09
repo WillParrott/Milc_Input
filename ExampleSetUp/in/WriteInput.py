@@ -1094,7 +1094,7 @@ def edit_extract(yamldata):    # edits extract/Extract.py
     g.write("        for filename in filenames:\n")
     g.write("            if os.path.exists(filename):\n")
     g.write("                average += fac*float(result[filename][i])/(norm*len(filenames))\n")
-    g.write("        average = (-1)**(neg%2) * average\n")
+    g.write("        average = (-1)**(neg%2 + 1) * average\n")
     g.write("        g.write('{0:.11g}    '.format(average))\n")
     g.write("    g.write('\\n')\n")
     g.write("    return()\n")
