@@ -14,7 +14,7 @@ lattice info:
   nsrc: 8             # Number of source times 
   allsources: True     # True if you want to run all sources, else [0,2,3] eg to skip the second of 4
   nsrcdivider: 6       #This is the denominator in the source start determination. Usually 5 or 6.	 
-  tag: Dantest-           #Tag go on front of saved versions
+  tag: tTphasetest-           #Tag go on front of saved versions
   justtwopoints: False
   submit: ./submit/submit_ks_spectrum_hisq.slurm-skylake
 #props (all of them)
@@ -29,61 +29,55 @@ parent prop:
   - '0.8'
   twist: '0'
   spin_taste:
-  - G5-G5
-  - G5T-G5T
+  - GY-GY
   error: 0
   rel_error: 6e-14
-  multimass: False                                           #Do you want to use a multimass inverter, ie group together in one set
+  multimass: True                                           #Do you want to use a multimass inverter, ie group together in one set
 
 
 daughter prop:
   quark: strange
   name: K
-  mass: 0.0376
+  mass: '0.0376'
   twists:
   - '0'
-  - '1.261'
-  - '2.108'
-  - '2.946'
-  - '3.624'
   spin_taste:    
   - G5-G5         # List of all spin tastes
-  - G5-G5X
   error: 1e-8
   rel_error: 0
   save: False      # Will not save props which are loaded. Currently only saves G5-G5
   
 
 spectator prop:   # Put this in even if it is the same as one of the daughter props
-  quark: light
-  same: False      # Is this the same as a daughter prop?
-  load: False
+  quark: strange
+  same: True      # Is this the same as a daughter prop?
+  load: True
   check: yes      
-  mass: '0.0048'
-  twist: 0           
+  mass: '0.0376'
+  twist: '0'           
   error: 1e-8
   rel_error: 0
   save: False
-  load_directory: /home/dc-parr2/rds/rds-dirac-dp019/Will/BK/fine_test/light_props/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass)
+  load_directory: /home/dc-parr2/rds/rds-dirac-dp019/Esther/props/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass)
 
 # Daughter props we want to load (these should appear in daughter prop too )
 
-#daughter load:
-#  check: yes        # yes or no on checking the loaded file
-#  twists:
-#  - '0'
+daughter load:
+  check: yes        # yes or no on checking the loaded file
+  twists:
+  - '0'
 #  - '0.4281'
 #  - '1.282'
 #  - '2.141'
 #  - '2.570'
-#  spin_taste:
-#  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
+  spin_taste:
+  - G5-G5             # assume G5-G5 for sources, but write once for each twist appearing
 #  - G5-G5
 #  - G5-G5
 #  - G5-G5
 #  - G5-G5 
-#  load_directory:
-#  - /home/dc-parr2/rds/rds-dirac-dp019/Esther/props/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass,twist)
+  load_directory:
+  - /home/dc-parr2/rds/rds-dirac-dp019/Esther/props/{0}.{1}_wallprop_m{3}_t{2} #set up so can be followed by .format(ens,cfg,t0,mass,twist)
 #  - /home/dc-parr2/rds/rds-dirac-dp019/Will/BsEtas/fine/th0.4281/{0}.{1}_wallprop_m{3}_th{4}_t{2}
 #  - /home/dc-parr2/rds/rds-dirac-dp019/propagators/fine5/th1.282/{0}.{1}_wallprop_m{3}_th{4}_t{2}
 #  - /home/dc-parr2/rds/rds-dirac-dp019/Will/BsEtas/fine/th2.1410/{0}.{1}_wallprop_m{3}_th{4}_t{2}
