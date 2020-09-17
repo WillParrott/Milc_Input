@@ -43,8 +43,8 @@ def edit_submit(data): # edits submit script so the input file read and written 
             else:
                 g.write('#SBATCH --error=./out/{0}2pt-{1}-%A.err\n'.format(data['lattice info']['tag'],cfg))
         
-        elif line.find('rm ${temp}/${ens}*${cfg}_*') != -1:
-            g.write('  rm {0}temp{1}/{2}{0}ens{1}*{0}cfg{1}_*\n'.format('${','}',data['lattice info']['tag']))
+        elif line.find('rm ${temp}/${ens}.${cfg}_*') != -1:
+            g.write('  rm {0}temp{1}/{2}{0}ens{1}.{0}cfg{1}_*\n'.format('${','}',data['lattice info']['tag']))
         else:
             g.write(line)
     g.close()

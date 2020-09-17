@@ -5,10 +5,10 @@
 #SBATCH --output=./out/Bs2etas-%A.out
 #SBATCH --error=./out/Bs2etas-%A.err
 #SBATCH -A DIRAC-DP019-CPU
-#SBATCH --nodes=32
+#SBATCH --nodes=4
 #! How many (MPI) tasks will there be in total? (<= nodes*32)
-#SBATCH --ntasks=1024
-#SBATCH --time=30:00:00
+#SBATCH --ntasks=128
+#SBATCH --time=5:00:00
 #SBATCH --mail-type=FAIL
 ##SBATCH --mail-user=2399654P@student.gla.ac.uk
 #! Uncomment this to prevent the job from being requeued (e.g. if
@@ -74,7 +74,7 @@ cleanup()
   local ens=l64192f211b700m00316m0158m188
   local cfg=$1
   echo "Removing temporary files, configuration ${cfg}, `date`"
-  rm ${temp}/${ens}*${cfg}_*
+  rm ${temp}/${ens}.${cfg}_*
 }
 
 #! Work directory (i.e. where the job will run):
