@@ -263,7 +263,7 @@ def make_daughter_set_prop(Props,load,save,check,input_file,data,twist,set_no,pr
     if load == False:
         input_file.write('fresh_ksprop\n')
     else:
-        input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
+        input_file.write('reload_parallel_ksprop {0}\n'.format(load_directory))
     if save == False and data['lattice info']['justtwopoints'] == False:
         input_file.write('save_serial_scidac_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
     elif spin_taste != 'G5-G5' and data['lattice info']['justtwopoints'] == False:
@@ -315,7 +315,7 @@ def make_spectator_set_prop(Props,input_file,data,set_no,prop_no,source,cfg,t0):
     if load == False:
         input_file.write('fresh_ksprop\n')
     else:
-        input_file.write('reload_serial_ksprop {0}\n'.format(load_directory))
+        input_file.write('reload_parallel_ksprop {0}\n'.format(load_directory))
     if save == False and data['lattice info']['justtwopoints'] == False:
         input_file.write('save_serial_scidac_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5',data['lattice info']['tag']) )
     elif load == True and data['lattice info']['justtwopoints'] == False:
@@ -642,9 +642,9 @@ def make_quark_ext(input_file,data,qnum,cfg,t0,Ts):
     input_file.write('quark_type KS\n')
     input_file.write('output_type KS\n')
     if data['spectator prop']['save'] == True and data['spectator prop']['load'] == False:
-        input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
+        input_file.write('reload_parallel_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['spectator prop']['mass'],data['spectator prop']['twist'],t0))
     else:
-        input_file.write('reload_serial_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5',data['lattice info']['tag']) )
+        input_file.write('reload_parallel_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['spectator prop']['mass'],data['spectator prop']['twist'],'G5-G5',data['lattice info']['tag']) )
     input_file.write('ncolor {0}\n'.format(data['lattice info']['ncolor']))
     input_file.write('\n')
     input_file.write('# Smeraing for quark {0}\n'.format(qnum))
@@ -710,11 +710,11 @@ def make_daughter_set_prop_3pt(Props,save,input_file,data,twist,set_no,prop_no,s
     input_file.write('error_for_propagator {0}\n'.format(data['daughter prop']['error']))
     input_file.write('rel_error_for_propagator {0}\n'.format(data['daughter prop']['rel_error']))
     if save == False:
-        input_file.write('reload_serial_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
+        input_file.write('reload_parallel_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
     elif spin_taste != 'G5-G5':
-        input_file.write('reload_serial_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
+        input_file.write('reload_parallel_ksprop ./temp/{6}{0}.{1}_t{2}_wallprop_m{3}_tw{4}_st{5}\n'.format(data['lattice info']['ens'],cfg,t0,data['daughter prop']['mass'],twist,spin_taste,data['lattice info']['tag']) )
     else:
-        input_file.write('reload_serial_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
+        input_file.write('reload_parallel_ksprop ./props/{0}.{1}_wallprop_m{2}_th{3}_t{4}\n'.format(data['lattice info']['ens'],cfg,data['daughter prop']['mass'],twist,t0))
     input_file.write('forget_ksprop\n')
     input_file.write('\n')    
     return()
